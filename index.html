@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shivanandha | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: linear-gradient(to bottom, #fff8e1, #fefce8);
+      --accent: #facc15;
+      --accent-alt: #c084fc;
+      --text: #1f2937;
+      --glass: rgba(255, 255, 255, 0.7);
+      --shadow: rgba(0, 0, 0, 0.1);
+      --tech: linear-gradient(90deg, #facc15, #fbbf24);
+      --skill-text: #d97706;
+      --highlight-text: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: var(--accent);
+      animation: fadeInDrop 1.2s ease-out forwards;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: var(--accent-alt);
+      border-bottom: 2px solid var(--accent-alt);
+      padding-bottom: 5px;
+      animation: zoomIn 1s ease-out both;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    p {
+      font-size: 1.05rem;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    .section-block {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px var(--shadow);
+      opacity: 0;
+      transform: translateY(60px);
+      transition: all 0.6s ease-out;
+      animation: slideUp 0.9s ease-in-out forwards;
+    }
+
+    @keyframes slideUp {
+      0% { opacity: 0; transform: translateY(60px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .hero-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--accent);
+      box-shadow: 0 0 20px #facc1580;
+      cursor: pointer;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .hero-img:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 28px var(--accent);
+    }
+
+    .hero-subtext {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 8px;
+      color: var(--highlight-text);
+    }
+
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .skill {
+      padding: 10px 18px;
+      border-radius: 14px;
+      background: #fffde7;
+      color: var(--accent);
+      font-size: 0.96rem;
+      font-weight: 600;
+      transition: all 0.4s ease;
+      animation: skillFloat 4s infinite ease-in-out;
+    }
+
+    .skill:hover {
+      transform: scale(1.1);
+      background: var(--accent);
+      color: white;
+    }
+
+    @keyframes skillFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .contact-icons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-top: 20px;
+    }
+
+    .contact-icons a {
+      background: white;
+      padding: 10px;
+      border-radius: 50%;
+      color: #4b5563;
+      transition: all 0.4s ease;
+      animation: floatContact 6s ease-in-out infinite;
+    }
+
+    @keyframes floatContact {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .contact-icons a:hover {
+      background: var(--accent);
+      color: white;
+      transform: scale(1.3) rotate(12deg);
+    }
+
+    footer {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 6px 0;
+    }
+
+    details p {
+      animation: fadeInDetail 0.6s ease-in-out;
+      margin-left: 20px;
+    }
+
+    @keyframes fadeInDetail {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+  <script>
+    window.addEventListener("scroll", () => {
+      document.querySelectorAll(".section-block").forEach((block) => {
+        const rect = block.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) {
+          block.classList.add("animate");
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="section-block hero">
+      <img src="./yellow.jpeg" alt="Profile" class="hero-img" />
+      <div class="hero-text">
+        <h1>SHIVANANDHA K K</h1>
+        <p class="hero-subtext">CS Finalist ⚡ | Prompt Crafter 🧠 | Minimal Maker of Meaningful Tech 🔧</p>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <h2>About Me</h2>
+      <p>
+        I'm a final-year Computer Science student with a growing interest in AI-driven tools and automation. Recently, I explored Prompt Engineering and learned how to guide large language models like ChatGPT to perform tasks such as summarization and content creation. I'm motivated to keep learning and apply my skills to build meaningful, real-world tech solutions.
+      </p>
+    </div>
+
+    <div class="section-block">
+      <h2>Skills</h2>
+      <div class="skills">
+        <div class="skill">Prompt Engineering</div>
+        <div class="skill">Python</div>
+        <div class="skill">HTML &amp; CSS</div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <h2>Projects</h2>
+      <p><strong>Biology App Prototype (FlutterFlow):</strong> A no-code prototype built using FlutterFlow to visually teach biology topics. Though basic, it showcases the use of no-code tools for educational technology innovation.</p>
+    </div>
+
+    <div class="section-block">
+      <h2>Achievements</h2>
+      <details>
+        <summary>💡 Innovation EXPO 2024</summary>
+        <p>Presented a working prototype addressing student-focused challenges through tech-enabled design.</p>
+      </details>
+      <details>
+        <summary>✅ Selected Top Innovation – SIH 2024</summary>
+        <p>Recognized for a tech-based idea to support students, chosen among top entries.</p>
+      </details>
+      <details>
+        <summary>📄 National Conference Presentation – Feb 2025</summary>
+        <p>Presented a paper titled “Security & Privacy in AR” highlighting key concerns and solutions in Augmented Reality systems.</p>
+      </details>
+    </div>
+
+    <div class="section-block">
+      <h2>Contact</h2>
+      <div class="contact-icons">
+        <a href="mailto:kkshivanandha@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a>
+        <a href="https://www.linkedin.com/in/shivanandha-k-k-7605b4218/" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/shivanandhakk" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://x.com/@shivanandhakk" target="_blank" title="X"><i class="fab fa-x-twitter"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Shivanandha — Designed with modern creativity and motion.
+  </footer>
+</body>
+</html>

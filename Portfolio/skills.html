@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Techs & Tools — SHIVANANDHA K K</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            heading: ['Sora', '"Plus Jakarta Sans"', 'sans-serif'],
+            body: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            hero: {
+              top: '#F97316',
+              mid: '#9A3412',
+              deep: '#8C2410',
+            },
+            jd: {
+              periwinkle: '#747CD4',
+              mint: '#B4E5D7',
+              mintDark: '#2D8170',
+              yellow: '#FFBE53',
+              yellowDark: '#8A5D07',
+              charcoal: '#38393D',
+              coral: '#FA8268',
+              canvas: '#F4F3EE',
+              cardBg: '#FFFFFF',
+              lavenderBg: '#F3F2F8',
+              ink: '#151619'
+            }
+          },
+          boxShadow: {
+            'bento': '0 10px 30px -4px rgba(21, 22, 25, 0.05), 0 2px 8px -2px rgba(21, 22, 25, 0.03)',
+            'bento-hover': '0 20px 35px -6px rgba(21, 22, 25, 0.09)',
+            'node': '0 6px 18px -2px rgba(116, 124, 212, 0.2)',
+            'node-active': '0 0 0 3px #747CD4, 0 10px 24px -4px rgba(116, 124, 212, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after {
+      font-stretch: 100% !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    html, body {
+      background-color: #F4F3EE;
+      color: #151619;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    ::-webkit-scrollbar {
+      display: none !important;
+      width: 0px !important;
+      height: 0px !important;
+    }
+
+    .window-page {
+      height: 100vh;
+      height: 100svh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .bento-shell {
+      max-width: 1040px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+    @media (min-width: 768px) {
+      .bento-shell {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+
+    .pastel-dot-grid {
+      background-image: radial-gradient(rgba(116, 124, 212, 0.24) 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
+    }
+  </style>
+</head>
+
+<body class="selection:bg-jd-yellow selection:text-jd-charcoal">
+
+  <script>
+    window.PORTFOLIO_CONFIG = {
+      skillsData: [
+        {
+          id: "html",
+          name: "HTML",
+          icon: "code",
+          category: "Frontend Structure",
+          progress: 92,
+          levelText: "Advanced",
+          description: "Semantic HTML5 architecture, modern DOM structuring, accessibility (a11y), and viewport framing.",
+          accent: "#E44D26",
+          badgeBg: "rgba(228, 77, 38, 0.12)"
+        },
+        {
+          id: "css",
+          name: "CSS",
+          icon: "palette",
+          category: "Visual Layouts",
+          progress: 90,
+          levelText: "Advanced",
+          description: "CSS Grid, Flexbox alignment, adaptive media queries, custom variables, and micro-interactions.",
+          accent: "#264DE4",
+          badgeBg: "rgba(38, 77, 228, 0.12)"
+        },
+        {
+          id: "javascript",
+          name: "JavaScript",
+          icon: "sparkles",
+          category: "Dynamic Scripting",
+          progress: 85,
+          levelText: "Proficient",
+          description: "ES6+ modern syntax, asynchronous API requests, event-driven interfaces, and DOM state handling.",
+          accent: "#D49800",
+          badgeBg: "rgba(212, 152, 0, 0.15)"
+        },
+        {
+          id: "python",
+          name: "Python",
+          icon: "terminal",
+          category: "Programming & Data",
+          progress: 86,
+          levelText: "Proficient",
+          description: "Algorithmic logic, data manipulation, automation scripts, and foundational computing principles.",
+          accent: "#128848",
+          badgeBg: "rgba(18, 136, 72, 0.12)"
+        },
+        {
+          id: "mysql",
+          name: "MySQL",
+          icon: "database",
+          category: "Relational DB",
+          progress: 84,
+          levelText: "Proficient",
+          description: "Schema normalization, multi-table JOIN queries, relational data integrity, and indexing.",
+          accent: "#00758F",
+          badgeBg: "rgba(0, 117, 143, 0.12)"
+        },
+        {
+          id: "powerbi",
+          name: "Power BI",
+          icon: "bar-chart-3",
+          category: "Business Analytics",
+          progress: 82,
+          levelText: "Intermediate-Advanced",
+          description: "Data modeling, DAX measures, interactive KPI dashboards, and analytical reporting.",
+          accent: "#D68E00",
+          badgeBg: "rgba(214, 142, 0, 0.15)"
+        }
+      ]
+    };
+  </script>
+
+  <!-- Top Minimal Floating Header -->
+  <header class="fixed top-0 left-0 w-full z-50 px-4 sm:px-8 py-3 transition-all duration-300 pointer-events-auto bg-[#F4F3EE]/90 backdrop-blur-md border-b border-black/5 shadow-xs" id="main-nav">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 group">
+        <span class="nav-logo text-xs font-mono font-bold tracking-widest text-jd-ink transition-colors duration-300">SHIVANANDHA</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-7 text-[14px] font-semibold text-jd-charcoal nav-links transition-colors duration-300">
+        <a href="index.html" class="hover:opacity-80 transition-opacity">Home</a>
+        <a href="about.html" class="hover:opacity-80 transition-opacity">About</a>
+        <a href="skills.html" class="hover:opacity-80 transition-opacity text-jd-periwinkle font-bold">Techs & Tools</a>
+        <a href="projects.html" class="hover:opacity-80 transition-opacity">Work</a>
+        <a href="achievements.html" class="hover:opacity-80 transition-opacity">Achievements</a>
+        <a href="contact.html" class="hover:opacity-80 transition-opacity">Contact</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a href="contact.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-white text-jd-charcoal shadow-sm hover:bg-jd-yellow transition-all">
+          <span>Connect</span>
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+        </a>
+        <button id="menu-toggle" aria-label="Toggle Menu" class="p-1.5 rounded-lg text-jd-ink md:hidden bg-black/5 focus:outline-none">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu" class="fixed inset-0 bg-jd-charcoal/95 backdrop-blur-md z-50 flex flex-col justify-center items-center gap-6 text-base font-bold text-white transition-all duration-300 opacity-0 pointer-events-none md:hidden">
+    <a href="index.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">HOME</a>
+    <a href="about.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">ABOUT</a>
+    <a href="skills.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors text-jd-yellow">TECHS & TOOLS</a>
+    <a href="projects.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">SELECTED WORK</a>
+    <a href="achievements.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">ACHIEVEMENTS</a>
+    <a href="contact.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">CONTACT</a>
+  </div>
+
+  <main id="main-content">
+    <!-- PAGE 3 — TECHS & TOOLS -->
+    <section id="skills" class="window-page bg-jd-lavenderBg border-b border-jd-charcoal/10 pt-16">
+      <div class="bento-shell relative z-10 w-full">
+        <div class="text-center max-w-md mx-auto mb-5">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-jd-periwinkle border border-jd-periwinkle/20 text-[10px] font-mono font-bold uppercase tracking-wider mb-1.5">
+            <i data-lucide="orbit" class="w-3.5 h-3.5"></i>
+            <span>Interactive Constellation</span>
+          </div>
+          <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-jd-ink tracking-tight mb-1">
+            Techs & Tools<span class="font-mono text-jd-periwinkle font-normal text-xl">’</span>
+          </h2>
+          <p class="text-[12px] text-jd-charcoal/70 font-medium">
+            Technologies I've been working with. Tap or click any floating node to view live proficiency.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4" id="skills-pill-bar"></div>
+
+        <div class="relative w-full rounded-[26px] bg-white border border-white shadow-bento p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch">
+          <div class="relative flex-1 min-h-[260px] sm:min-h-[290px] rounded-2xl bg-[#F7F6F2] border border-gray-100 overflow-hidden pastel-dot-grid select-none" id="constellation-arena">
+            <canvas id="constellation-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              <div class="w-16 h-16 rounded-full border border-jd-periwinkle/30 flex flex-col items-center justify-center bg-white/60 backdrop-blur-xs shadow-xs">
+                <span class="text-[7.5px] font-mono font-bold text-jd-periwinkle tracking-wider uppercase">CORE</span>
+                <span class="text-[10px] font-display font-extrabold text-jd-ink tracking-tight">STACK</span>
+              </div>
+            </div>
+
+            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="html" id="bubble-html">
+              <span class="w-6 h-6 rounded-full bg-[#E44D26]/15 text-[#E44D26] flex items-center justify-center text-[10px] font-mono font-bold">&lt;&gt;</span>
+              <span class="text-[12px] font-display font-bold text-jd-ink">HTML</span>
+            </button>
+
+            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="css" id="bubble-css">
+              <span class="w-6 h-6 rounded-full bg-[#264DE4]/15 text-[#264DE4] flex items-center justify-center text-[10px]"><i data-lucide="palette" class="w-3.5 h-3.5"></i></span>
+              <span class="text-[12px] font-display font-bold text-jd-ink">CSS</span>
+            </button>
+
+            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="javascript" id="bubble-javascript">
+              <span class="w-6 h-6 rounded-full bg-[#FFBE53]/35 text-[#8A5D07] flex items-center justify-center text-[10px] font-mono font-bold">JS</span>
+              <span class="text-[12px] font-display font-bold text-jd-ink">JavaScript</span>
+            </button>
+
+            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="python" id="bubble-python">
+              <span class="w-6 h-6 rounded-full bg-[#128848]/15 text-[#128848] flex items-center justify-center text-[10px]"><i data-lucide="terminal" class="w-3.5 h-3.5"></i></span>
+              <span class="text-[12px] font-display font-bold text-jd-ink">Python</span>
+            </button>
+
+            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="mysql" id="bubble-mysql">
+              <span class="w-6 h-6 rounded-full bg-[#00758F]/15 text-[#00758F] flex items-center justify-center text-[10px]"><i data-lucide="database" class="w-3.5 h-3.5"></i></span>
+              <span class="text-[12px] font-display font-bold text-jd-ink">MySQL</span>
+            </button>
+
+            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="powerbi" id="bubble-powerbi">
+              <span class="w-6 h-6 rounded-full bg-[#D68E00]/15 text-[#9E6900] flex items-center justify-center text-[10px]"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i></span>
+              <span class="text-[12px] font-display font-bold text-jd-ink">Power BI</span>
+            </button>
+          </div>
+
+          <div class="w-full md:w-[310px] bg-jd-canvas rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between" id="inspector-card">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[9px] font-mono uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-full bg-jd-periwinkle/15 text-jd-periwinkle" id="inspect-category">
+                  Frontend Structure
+                </span>
+                <span class="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded" id="inspect-level">
+                  Advanced
+                </span>
+              </div>
+
+              <div class="flex items-center gap-3 mb-3.5">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-xs transition-colors duration-300" id="inspect-icon-wrap" style="background-color: #E44D26;">
+                  <i data-lucide="code" class="w-5 h-5" id="inspect-icon-el"></i>
+                </div>
+                <div>
+                  <h3 class="font-display font-extrabold text-xl text-jd-ink leading-tight tracking-tight" id="inspect-title">
+                    HTML
+                  </h3>
+                  <span class="text-[10px] font-mono text-gray-500">Verified Technical Foundation</span>
+                </div>
+              </div>
+
+              <div class="my-3 bg-white rounded-xl p-3 border border-gray-200/80 shadow-xs">
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span class="font-mono text-[10px] uppercase font-bold text-gray-600">Progression Level</span>
+                  <span class="font-display font-extrabold text-sm text-jd-ink" id="inspect-percentage">92%</span>
+                </div>
+                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500 ease-out" id="inspect-bar" style="width: 92%; background-color: #E44D26;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-[9px] font-mono uppercase text-gray-400 font-bold mb-1 tracking-wider">
+                  COMPETENCIES & SCOPE
+                </div>
+                <p class="text-[12px] text-jd-charcoal/80 leading-relaxed font-medium" id="inspect-desc">
+                  Semantic HTML5 architecture, modern DOM structuring, accessibility (a11y), and viewport framing.
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-gray-200/80 flex items-center justify-between text-[10px] font-mono">
+              <span class="text-gray-500">Curriculum Verified</span>
+              <button onclick="cycleNextSkill()" class="text-jd-periwinkle font-bold hover:underline cursor-pointer flex items-center gap-1">
+                <span>Next Skill</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    let activeSkillIndex = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const cfg = window.PORTFOLIO_CONFIG;
+      buildQuickSelectPills();
+      inspectSkill(cfg.skillsData[0]);
+      initConstellation();
+      initMobileNav();
+    });
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById("mobile-menu");
+      if (drawer) {
+        drawer.classList.add("opacity-0", "pointer-events-none");
+        drawer.classList.remove("opacity-100", "pointer-events-auto");
+      }
+    }
+
+    function buildQuickSelectPills() {
+      const bar = document.getElementById("skills-pill-bar");
+      if (!bar) return;
+      bar.innerHTML = "";
+
+      window.PORTFOLIO_CONFIG.skillsData.forEach((skill, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `quick-pill text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200 cursor-pointer border ${
+          index === 0 
+            ? "bg-jd-periwinkle text-white border-jd-periwinkle shadow-xs" 
+            : "bg-white text-jd-charcoal border-gray-200 hover:border-jd-periwinkle"
+        }`;
+        btn.dataset.skillId = skill.id;
+        btn.textContent = skill.name;
+
+        btn.addEventListener("click", () => {
+          activeSkillIndex = index;
+          inspectSkill(skill);
+        });
+
+        bar.appendChild(btn);
+      });
+    }
+
+    function inspectSkill(skill) {
+      if (!skill) return;
+
+      document.getElementById("inspect-category").textContent = skill.category;
+      document.getElementById("inspect-title").textContent = skill.name;
+      document.getElementById("inspect-level").textContent = skill.levelText;
+      document.getElementById("inspect-percentage").textContent = `${skill.progress}%`;
+      
+      const bar = document.getElementById("inspect-bar");
+      bar.style.width = `${skill.progress}%`;
+      bar.style.backgroundColor = skill.accent;
+
+      const iconWrap = document.getElementById("inspect-icon-wrap");
+      iconWrap.style.backgroundColor = skill.accent;
+
+      document.getElementById("inspect-desc").textContent = skill.description;
+      
+      const iconEl = document.getElementById("inspect-icon-el");
+      iconEl.setAttribute("data-lucide", skill.icon);
+      lucide.createIcons();
+
+      document.querySelectorAll(".skill-node").forEach(node => {
+        if (node.dataset.skillId === skill.id) {
+          node.classList.add("shadow-node-active", "border-jd-periwinkle", "scale-105");
+        } else {
+          node.classList.remove("shadow-node-active", "border-jd-periwinkle", "scale-105");
+        }
+      });
+
+      document.querySelectorAll(".quick-pill").forEach(pill => {
+        if (pill.dataset.skillId === skill.id) {
+          pill.className = "quick-pill text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200 cursor-pointer border bg-jd-periwinkle text-white border-jd-periwinkle shadow-xs";
+        } else {
+          pill.className = "quick-pill text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200 cursor-pointer border bg-white text-jd-charcoal border-gray-200 hover:border-jd-periwinkle";
+        }
+      });
+    }
+
+    function cycleNextSkill() {
+      const list = window.PORTFOLIO_CONFIG.skillsData;
+      activeSkillIndex = (activeSkillIndex + 1) % list.length;
+      inspectSkill(list[activeSkillIndex]);
+    }
+
+    function initConstellation() {
+      const arena = document.getElementById("constellation-arena");
+      const canvas = document.getElementById("constellation-canvas");
+      if (!arena || !canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      const nodesElements = Array.from(document.querySelectorAll(".skill-node"));
+
+      let W = arena.clientWidth;
+      let H = arena.clientHeight;
+
+      function resize() {
+        W = arena.clientWidth;
+        H = arena.clientHeight;
+        canvas.width = W * window.devicePixelRatio;
+        canvas.height = H * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      const presetRatios = [
+        { rx: 0.22, ry: 0.26 },
+        { rx: 0.78, ry: 0.25 },
+        { rx: 0.18, ry: 0.72 },
+        { rx: 0.82, ry: 0.70 },
+        { rx: 0.48, ry: 0.18 },
+        { rx: 0.50, ry: 0.82 }
+      ];
+
+      const nodes = nodesElements.map((el, i) => {
+        const ratio = presetRatios[i] || { rx: 0.5, ry: 0.5 };
+        const originX = W * ratio.rx;
+        const originY = H * ratio.ry;
+        const w = el.offsetWidth || 95;
+        const h = el.offsetHeight || 38;
+
+        const skillId = el.dataset.skillId;
+        const skillData = window.PORTFOLIO_CONFIG.skillsData.find(s => s.id === skillId);
+
+        const trigger = (e) => {
+          e.preventDefault();
+          if (skillData) {
+            activeSkillIndex = window.PORTFOLIO_CONFIG.skillsData.findIndex(s => s.id === skillId);
+            inspectSkill(skillData);
+          }
+        };
+
+        el.addEventListener("pointerdown", trigger);
+        el.addEventListener("click", trigger);
+
+        return {
+          el,
+          originX,
+          originY,
+          x: originX,
+          y: originY,
+          vx: (Math.random() - 0.5) * 0.25,
+          vy: (Math.random() - 0.5) * 0.25,
+          w,
+          h
+        };
+      });
+
+      let pointer = { x: -999, y: -999, active: false };
+
+      arena.addEventListener("pointermove", (e) => {
+        const rect = arena.getBoundingClientRect();
+        pointer.x = e.clientX - rect.left;
+        pointer.y = e.clientY - rect.top;
+        pointer.active = true;
+      });
+
+      arena.addEventListener("pointerleave", () => {
+        pointer.active = false;
+      });
+
+      function render() {
+        ctx.clearRect(0, 0, W, H);
+
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const dx = nodes[i].x - nodes[j].x;
+            const dy = nodes[i].y - nodes[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 190) {
+              const alpha = (1 - dist / 190) * 0.28;
+              ctx.strokeStyle = `rgba(116, 124, 212, ${alpha})`;
+              ctx.lineWidth = 1;
+              ctx.setLineDash([3, 4]);
+              ctx.beginPath();
+              ctx.moveTo(nodes[i].x, nodes[i].y);
+              ctx.lineTo(nodes[j].x, nodes[j].y);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
+          }
+        }
+
+        if (pointer.active) {
+          nodes.forEach(n => {
+            const dx = n.x - pointer.x;
+            const dy = n.y - pointer.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 110) {
+              const alpha = (1 - dist / 110) * 0.35;
+              ctx.strokeStyle = `rgba(225, 73, 24, ${alpha})`;
+              ctx.lineWidth = 1.2;
+              ctx.beginPath();
+              ctx.moveTo(n.x, n.y);
+              ctx.lineTo(pointer.x, pointer.y);
+              ctx.stroke();
+            }
+          });
+        }
+
+        const padX = 50;
+        const padY = 32;
+
+        nodes.forEach(n => {
+          n.x += n.vx;
+          n.y += n.vy;
+
+          const springX = (n.originX - n.x) * 0.008;
+          const springY = (n.originY - n.y) * 0.008;
+          n.vx += springX;
+          n.vy += springY;
+
+          n.vx *= 0.98;
+          n.vy *= 0.98;
+
+          if (pointer.active) {
+            const dx = n.x - pointer.x;
+            const dy = n.y - pointer.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 85 && dist > 1) {
+              const force = (85 - dist) / 85 * 0.65;
+              n.vx += (dx / dist) * force;
+              n.vy += (dy / dist) * force;
+            }
+          }
+
+          if (n.x < padX) {
+            n.x = padX;
+            n.vx = Math.abs(n.vx) * 0.4;
+          } else if (n.x > W - padX) {
+            n.x = W - padX;
+            n.vx = -Math.abs(n.vx) * 0.4;
+          }
+
+          if (n.y < padY) {
+            n.y = padY;
+            n.vy = Math.abs(n.vy) * 0.4;
+          } else if (n.y > H - padY) {
+            n.y = H - padY;
+            n.vy = -Math.abs(n.vy) * 0.4;
+          }
+
+          n.el.style.left = `${n.x - n.w / 2}px`;
+          n.el.style.top = `${n.y - n.h / 2}px`;
+        });
+
+        requestAnimationFrame(render);
+      }
+
+      render();
+    }
+
+    function initMobileNav() {
+      const toggle = document.getElementById("menu-toggle");
+      const drawer = document.getElementById("mobile-menu");
+      if (!toggle || !drawer) return;
+
+      let open = false;
+      toggle.addEventListener("click", () => {
+        open = !open;
+        if (open) {
+          drawer.classList.remove("opacity-0", "pointer-events-none");
+          drawer.classList.add("opacity-100", "pointer-events-auto");
+        } else {
+          drawer.classList.add("opacity-0", "pointer-events-none");
+          drawer.classList.remove("opacity-100", "pointer-events-auto");
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

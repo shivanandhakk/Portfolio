@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SHIVANANDHA K K — Portfolio</title>
-  
+
+  <script>document.documentElement.classList.add('js');</script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -37,14 +39,15 @@
               charcoal: '#38393D',
               coral: '#FA8268',
               canvas: '#F4F3EE',
+              paleAbout: '#F4F7FA',
               cardBg: '#FFFFFF',
               lavenderBg: '#F3F2F8',
               ink: '#151619'
             }
           },
           boxShadow: {
-            'bento': '0 10px 30px -4px rgba(21, 22, 25, 0.05), 0 2px 8px -2px rgba(21, 22, 25, 0.03)',
-            'bento-hover': '0 20px 35px -6px rgba(21, 22, 25, 0.09)',
+            'bento': '0 1px 2px rgba(21, 22, 25, 0.04), 0 14px 32px -10px rgba(21, 22, 25, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.65)',
+            'bento-hover': '0 2px 4px rgba(21, 22, 25, 0.05), 0 24px 44px -12px rgba(21, 22, 25, 0.18)',
             'node': '0 6px 18px -2px rgba(116, 124, 212, 0.2)',
             'node-active': '0 0 0 3px #747CD4, 0 10px 24px -4px rgba(116, 124, 212, 0.35)',
           }
@@ -66,60 +69,290 @@
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
-    }
-
-    /* REMOVE SCROLLBAR ENTIRELY */
-    ::-webkit-scrollbar {
-      display: none !important;
-      width: 0px !important;
-      height: 0px !important;
-    }
-
-    body.hero-locked {
-      overflow: hidden !important;
-      height: 100vh !important;
-      touch-action: none !important;
-    }
-
-    /* FULLPAGE SNAP AND SLIDE-UP */
-    html {
-      scroll-snap-type: y mandatory;
-    }
-
-    .window-page {
-      height: 100vh;
-      height: 100svh;
       width: 100%;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
+      height: 100%;
+      overflow: hidden;              /* the window never scrolls: pages are controlled */
+      overscroll-behavior: none;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+
+    body.hero-locked { touch-action: none !important; }
+
+    /* FIXED STATIC HEADER FOR EVERY PAGE */
+    #main-nav {
+      position: fixed !important;
+      top: 0; left: 0;
+      width: 100%;
+      z-index: 50;
+      pointer-events: auto;
+    }
+
+    /* nav active indicator */
+    .nav-links a { position: relative; padding: 4px 0; }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -2px;
+      height: 2px; width: 0;
+      background: currentColor;
+      border-radius: 2px;
+      transition: width .3s ease;
+    }
+    .nav-links a.active::after { width: 100%; }
+
+    /* ================= PAGE STACK =================
+       Every page is a full-viewport layer. Pages before the current one
+       wait above the window, pages after it wait below. Moving one step
+       slides the current page out and the next page in. */
+    .window-page {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
+      transform: translate3d(0, 100%, 0) scale(1);
+      opacity: 1;
+      visibility: hidden;
+      z-index: 3;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transition:
+        transform 0.95s cubic-bezier(0.76, 0, 0.24, 1),
+        opacity 0.95s cubic-bezier(0.76, 0, 0.24, 1),
+        visibility 0s linear 0.95s;
+    }
+    /* pages already visited recede upward and soften; the next page glides up over the current one */
+    .window-page.is-before { transform: translate3d(0, -22%, 0) scale(0.96); opacity: 0.2; z-index: 1; }
+    .window-page.is-after  { transform: translate3d(0, 100%, 0) scale(1); opacity: 1; z-index: 3; box-shadow: 0 -28px 60px -24px rgba(21, 22, 25, 0.22); }
+    .window-page.is-active {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 1;
+      z-index: 2;
+      visibility: visible;
+      box-shadow: 0 -28px 60px -24px rgba(21, 22, 25, 0.22);
+      transition-delay: 0s, 0s, 0s;
+    }
+    .window-page.no-anim { transition: none !important; }
+
+    /* Inner scroller: only scrolls when a page has more content than fits */
+    .page-scroll {
+      position: absolute;
+      inset: 0;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      position: relative;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4.75rem 0 5rem;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      scrollbar-width: none;
     }
+    .page-inner { margin-block: auto; width: 100%; }
 
     .bento-shell {
-      max-width: 1040px;
+      max-width: 1120px !important;
+      width: 100%;
       margin-left: auto;
       margin-right: auto;
       padding-left: 1.25rem;
       padding-right: 1.25rem;
     }
     @media (min-width: 768px) {
-      .bento-shell {
-        padding-left: 2rem;
-        padding-right: 2rem;
-      }
+      .bento-shell { padding-left: 2rem; padding-right: 2rem; }
     }
 
-    .scene-3d {
-      perspective: 1200px;
-      perspective-origin: 50% 45%;
+    /* soft, light, sunny page backgrounds (no cream, purple, dark or grey) */
+    #main-content { background: #FFF6D6; }
+    #about {
+      background:
+        radial-gradient(900px 520px at 6% 0%, rgba(255, 190, 83, 0.32), transparent 62%),
+        radial-gradient(820px 520px at 100% 100%, rgba(180, 229, 215, 0.50), transparent 62%),
+        #FFF8D8;
     }
+    #skills {
+      background:
+        radial-gradient(760px 480px at 6% 0%, rgba(255, 246, 214, 0.55), transparent 62%),
+        radial-gradient(800px 520px at 0% 100%, rgba(180, 229, 215, 0.38), transparent 62%),
+        radial-gradient(820px 520px at 100% 100%, rgba(250, 130, 104, 0.18), transparent 62%),
+        linear-gradient(145deg, #F4DCA6 0%, #EFCB92 52%, #EBBD8C 100%);
+    }
+    #skills::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.28) 1.5px, transparent 1.5px);
+      background-size: 26px 26px;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 70%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 70%);
+    }
+    #skills .page-head { border-bottom-color: rgba(21, 22, 25, 0.18); }
+    #skills .page-sub { color: rgba(21, 22, 25, 0.78); }
+    #skills .page-tag { color: rgba(21, 22, 25, 0.6); }
+    .accent-rust { color: #9A3412; }
+    #contact .page-scroll, #skills .page-scroll { z-index: 1; }
+    #projects {
+      background:
+        radial-gradient(820px 520px at 0% 0%, rgba(250, 130, 104, 0.22), transparent 62%),
+        radial-gradient(800px 520px at 100% 100%, rgba(255, 190, 83, 0.30), transparent 62%),
+        #FFEFE2;
+    }
+    #achievements {
+      background:
+        radial-gradient(820px 520px at 100% 0%, rgba(250, 130, 104, 0.16), transparent 62%),
+        radial-gradient(800px 520px at 0% 100%, rgba(180, 229, 215, 0.50), transparent 62%),
+        #FFF1CC;
+    }
+    #contact {
+      background:
+        radial-gradient(520px 520px at 50% 52%, rgba(255, 214, 110, 0.55), transparent 68%),
+        radial-gradient(900px 560px at 0% 0%, rgba(255, 243, 196, 0.90), transparent 62%),
+        radial-gradient(860px 540px at 100% 100%, rgba(250, 130, 104, 0.30), transparent 62%),
+        linear-gradient(160deg, #FFF4CE 0%, #FFE6C4 55%, #FFD6C0 100%);
+    }
+    /* soft "signal" ripples radiating from behind the contact panel */
+    #contact::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-radial-gradient(circle at 50% 52%, transparent 0, transparent 120px, rgba(255, 255, 255, 0.70) 121px, transparent 122px);
+      -webkit-mask-image: radial-gradient(circle at 50% 52%, #000 0%, transparent 74%);
+      mask-image: radial-gradient(circle at 50% 52%, #000 0%, transparent 74%);
+    }
+
+    /* ================= CONSISTENT PAGE HEADER ================= */
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid rgba(56, 57, 61, 0.14);
+    }
+    .page-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.3rem, 4.4vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: -0.035em;
+      display: flex;
+      align-items: baseline;
+      margin: 0;
+      color: #151619;
+    }
+    .page-title-mark { font-family: 'JetBrains Mono', monospace; font-size: 0.7em; margin-left: 0.12em; font-weight: 700; }
+    .page-sub {
+      font-size: 13.5px;
+      line-height: 1.5;
+      margin: 0.55rem 0 0;
+      font-weight: 500;
+      color: rgba(56, 57, 61, 0.72);
+      max-width: 36rem;
+    }
+    .page-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(56, 57, 61, 0.5);
+      text-align: right;
+      white-space: nowrap;
+    }
+    @media (max-width: 639px) { .page-tag { display: none; } .page-sub { font-size: 12.5px; } }
+    .page-head.on-dark { border-bottom-color: rgba(255, 255, 255, 0.16); }
+    .page-head.on-dark .page-title { color: #fff; }
+    .page-head.on-dark .page-sub { color: rgba(255, 255, 255, 0.7); }
+    .page-head.on-dark .page-tag { color: rgba(255, 255, 255, 0.5); }
+    .accent-peri { color: #747CD4; }
+    .accent-orange { color: #F97316; }
+    .accent-yellow { color: #FFBE53; }
+
+    /* ================= ENTRANCE (plays once per page arrival) ================= */
+    .js .reveal {
+      opacity: 0;
+      translate: 0 16px;
+      transition: opacity .6s ease, translate .7s cubic-bezier(.16,1,.3,1);
+      transition-delay: calc(var(--d, 0) * 80ms + 340ms);
+    }
+    .js .revealed .reveal { opacity: 1; translate: 0 0; }
+    .js .reveal-reset .reveal { transition: none !important; }
+
+    .lift { transition: transform .3s ease, box-shadow .3s ease; }
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(21, 22, 25, 0.05), 0 24px 44px -12px rgba(21, 22, 25, 0.18); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .js .reveal { opacity: 1; translate: 0 0; transition: none; }
+      .window-page { transition-duration: 0.01s, 0.01s, 0s; }
+    }
+
+    /* ================= PAGE NAV PILL ================= */
+    #page-nav {
+      position: fixed;
+      left: 50%;
+      bottom: max(0.9rem, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.3rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(21, 22, 25, 0.07);
+      box-shadow: 0 8px 24px -6px rgba(21, 22, 25, 0.2);
+      transition: opacity .5s ease;
+    }
+    body.hero-locked #page-nav { opacity: 0; pointer-events: none; }
+    .pn-btn {
+      width: 30px; height: 30px;
+      border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      color: #151619;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .pn-btn:hover { background: #FFBE53; }
+    .pn-btn:disabled { opacity: .3; cursor: default; background: transparent; }
+    #pn-dots { display: flex; align-items: center; gap: 6px; }
+    .pn-dot {
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      border: 0; padding: 0;
+      background: rgba(21, 22, 25, 0.22);
+      cursor: pointer;
+      transition: width .3s ease, background .3s ease;
+    }
+    .pn-dot:hover { background: rgba(21, 22, 25, 0.5); }
+    .pn-dot.is-on { width: 22px; background: #F97316; }
+    #pn-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: rgba(21, 22, 25, 0.55);
+      min-width: 34px;
+      text-align: center;
+    }
+
+    /* ================= HERO (UNCHANGED) ================= */
+    .scene-3d { perspective: 1200px; perspective-origin: 50% 45%; }
 
     .hero-container {
       position: fixed;
@@ -131,115 +364,59 @@
       overflow: hidden;
       transform-style: preserve-3d;
       will-change: transform, opacity;
-      transition: 
+      transition:
         transform 1.15s cubic-bezier(0.8, 0, 0.1, 1),
         opacity 0.85s cubic-bezier(0.8, 0, 0.2, 1);
     }
 
-    #hero-stage {
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
+    #hero-stage { transform-style: preserve-3d; will-change: transform; }
 
     #hero-portrait-container {
       will-change: transform, opacity;
       transition: transform 1.15s cubic-bezier(0.8, 0, 0.1, 1), opacity 0.8s ease;
     }
-
     #hero-name-wrapper {
       will-change: transform, opacity, letter-spacing;
       transition: transform 1.15s cubic-bezier(0.8, 0, 0.1, 1), opacity 0.75s ease, letter-spacing 1.15s ease;
     }
-
     #hero-talk-btn {
       will-change: transform, opacity;
       transition: transform 1.15s cubic-bezier(0.8, 0, 0.1, 1), opacity 0.75s ease;
     }
-
     #hero-ghost-text {
       will-change: transform, opacity;
       transition: transform 1.15s cubic-bezier(0.8, 0, 0.1, 1), opacity 0.75s ease;
     }
 
-    .hero-container.dive-in {
-      transform: translate3d(0, 0, 1100px);
-      opacity: 0;
-      pointer-events: none;
-    }
+    .hero-container.dive-in { transform: translate3d(0, 0, 1100px); opacity: 0; pointer-events: none; }
+    .hero-container.dive-in #hero-portrait-container { transform: scale(3.5) translateY(-30px); opacity: 0; }
+    .hero-container.dive-in #hero-name-wrapper { transform: scale(3.8) translateY(140px); letter-spacing: 0.25em; opacity: 0; }
+    .hero-container.dive-in #hero-talk-btn { transform: scale(2.5) translateY(-80px); opacity: 0; }
+    .hero-container.dive-in #hero-ghost-text { transform: scale(4.2); opacity: 0; }
 
-    .hero-container.dive-in #hero-portrait-container {
-      transform: scale(3.5) translateY(-30px);
-      opacity: 0;
-    }
-
-    .hero-container.dive-in #hero-name-wrapper {
-      transform: scale(3.8) translateY(140px);
-      letter-spacing: 0.25em;
-      opacity: 0;
-    }
-
-    .hero-container.dive-in #hero-talk-btn {
-      transform: scale(2.5) translateY(-80px);
-      opacity: 0;
-    }
-
-    .hero-container.dive-in #hero-ghost-text {
-      transform: scale(4.2);
-      opacity: 0;
-    }
-
+    /* Portfolio body: a fixed viewport-sized stage that holds the page stack */
     #main-content {
-      position: relative;
-      z-index: 10;
+      position: fixed;
+      inset: 0;
       width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 10;
       transform-origin: center 250px;
       will-change: transform, opacity;
-      transition: 
+      transition:
         transform 1.15s cubic-bezier(0.16, 1, 0.3, 1),
         opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    body.hero-locked #main-content { transform: scale(0.82) translate3d(0, 0, -250px); opacity: 0; pointer-events: none; }
+    body:not(.hero-locked) #main-content { transform: scale(1) translate3d(0, 0, 0); opacity: 1; pointer-events: auto; }
 
-    body.hero-locked #main-content {
-      transform: scale(0.82) translate3d(0, 0, -250px);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    body:not(.hero-locked) #main-content {
-      transform: scale(1) translate3d(0, 0, 0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .reg-cross {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      pointer-events: none;
-      z-index: 25;
-      opacity: 0.6;
-    }
-    .reg-cross::before {
-      content: '';
-      position: absolute;
-      left: 6px;
-      top: 0;
-      width: 2px;
-      height: 14px;
-      background: #FFFFFF;
-    }
-    .reg-cross::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 6px;
-      width: 14px;
-      height: 2px;
-      background: #FFFFFF;
-    }
+    .reg-cross { position: absolute; width: 14px; height: 14px; pointer-events: none; z-index: 25; opacity: 0.6; }
+    .reg-cross::before { content: ''; position: absolute; left: 6px; top: 0; width: 2px; height: 14px; background: #FFFFFF; }
+    .reg-cross::after { content: ''; position: absolute; left: 0; top: 6px; width: 14px; height: 2px; background: #FFFFFF; }
 
     .editorial-grid {
-      background-image: 
+      background-image:
         linear-gradient(to right, rgba(255, 255, 255, 0.09) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
       background-size: 52px 52px;
@@ -250,18 +427,8 @@
       background-size: 22px 22px;
     }
 
-    .hero-title-main {
-      font-size: clamp(3rem, 6.8vw, 6rem);
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -0.034em;
-    }
-    .hero-title-ghost {
-      font-size: clamp(3.2rem, 9.5vw, 7.2rem);
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.04em;
-    }
+    .hero-title-main { font-size: clamp(3rem, 6.8vw, 6rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.034em; }
+    .hero-title-ghost { font-size: clamp(3.2rem, 9.5vw, 7.2rem); font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
   </style>
 </head>
 
@@ -274,7 +441,7 @@
       fallbackPhoto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
       degree: "B.Sc. Computer Science",
       college: "PSGR Krishnammal College for Women",
-      cgpa: "8.8",
+      cgpa: "8.62",
       cgpaMax: "10",
       bio: "Computer Science student building modern, accessible web applications with clean logic and disciplined aesthetics.",
       location: "Coimbatore, Tamil Nadu",
@@ -289,7 +456,7 @@
           category: "Frontend Structure",
           progress: 92,
           levelText: "Advanced",
-          description: "Semantic HTML5 architecture, modern DOM structuring, accessibility (a11y), and viewport framing.",
+          description: "Used HTML to structure web pages and organize content using headings, sections, forms, links, images, tables, and semantic elements. Familiar with creating well-structured and user-friendly webpage layouts.",
           accent: "#E44D26",
           badgeBg: "rgba(228, 77, 38, 0.12)"
         },
@@ -300,7 +467,7 @@
           category: "Visual Layouts",
           progress: 90,
           levelText: "Advanced",
-          description: "CSS Grid, Flexbox alignment, adaptive media queries, custom variables, and micro-interactions.",
+          description: "Used CSS to design and style web pages, working with layouts, spacing, typography, colors, borders, and responsive elements. Familiar with creating clean and visually appealing webpage designs.",
           accent: "#264DE4",
           badgeBg: "rgba(38, 77, 228, 0.12)"
         },
@@ -311,7 +478,7 @@
           category: "Dynamic Scripting",
           progress: 85,
           levelText: "Proficient",
-          description: "ES6+ modern syntax, asynchronous API requests, event-driven interfaces, and DOM state handling.",
+          description: "Familiar with JavaScript fundamentals for adding interactivity and dynamic behavior to web pages. Used JavaScript for event handling, basic validation, user interactions, and enhancing webpage functionality.",
           accent: "#D49800",
           badgeBg: "rgba(212, 152, 0, 0.15)"
         },
@@ -322,7 +489,7 @@
           category: "Programming & Data",
           progress: 86,
           levelText: "Proficient",
-          description: "Algorithmic logic, data manipulation, automation scripts, and foundational computing principles.",
+          description: "Familiar with Python programming fundamentals and using Python to solve problems through logical and structured code. Comfortable working with variables, data types, conditions, loops, functions, and basic data handling.",
           accent: "#128848",
           badgeBg: "rgba(18, 136, 72, 0.12)"
         },
@@ -333,7 +500,7 @@
           category: "Relational DB",
           progress: 84,
           levelText: "Proficient",
-          description: "Schema normalization, multi-table JOIN queries, relational data integrity, and indexing.",
+          description: "Experienced in working with MySQL for database creation, data management, and SQL-based operations. Familiar with writing queries using joins, subqueries, aggregate functions, views, stored procedures, triggers, and constraints, along with performing CRUD operations and managing relational data.",
           accent: "#00758F",
           badgeBg: "rgba(0, 117, 143, 0.12)"
         },
@@ -344,7 +511,7 @@
           category: "Business Analytics",
           progress: 82,
           levelText: "Intermediate-Advanced",
-          description: "Data modeling, DAX measures, interactive KPI dashboards, and analytical reporting.",
+          description: "Used Power BI to transform, analyze, and visualize data through interactive dashboards and reports. Familiar with data preparation, charts, slicers, KPI cards, relationships, and DAX measures for presenting meaningful insights.",
           accent: "#D68E00",
           badgeBg: "rgba(214, 142, 0, 0.15)"
         }
@@ -352,7 +519,7 @@
     };
   </script>
 
-  <!-- Top Minimal Floating Header -->
+  <!-- TOP MINIMAL FLOATING HEADER -->
   <header class="fixed top-0 left-0 w-full z-50 px-4 sm:px-8 py-3 transition-all duration-300 pointer-events-auto" id="main-nav">
     <div class="max-w-4xl mx-auto flex items-center justify-between">
       <a href="javascript:void(0)" onclick="returnToLanding()" class="flex items-center gap-2 group">
@@ -360,12 +527,12 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-7 text-[14px] font-semibold text-white/85 nav-links transition-colors duration-300">
-        <a href="javascript:void(0)" onclick="returnToLanding()" class="hover:opacity-80 transition-opacity">Home</a>
-        <a href="javascript:void(0)" onclick="navigateToSection('about')" class="hover:opacity-80 transition-opacity">About</a>
-        <a href="javascript:void(0)" onclick="navigateToSection('skills')" class="hover:opacity-80 transition-opacity">Techs & Tools</a>
-        <a href="javascript:void(0)" onclick="navigateToSection('projects')" class="hover:opacity-80 transition-opacity">Work</a>
-        <a href="javascript:void(0)" onclick="navigateToSection('achievements')" class="hover:opacity-80 transition-opacity">Achievements</a>
-        <a href="javascript:void(0)" onclick="navigateToSection('contact')" class="hover:opacity-80 transition-opacity">Contact</a>
+        <a href="javascript:void(0)" data-nav="home" onclick="returnToLanding()" class="hover:opacity-80 transition-opacity">Home</a>
+        <a href="javascript:void(0)" data-nav="about" onclick="navigateToSection('about')" class="hover:opacity-80 transition-opacity">About</a>
+        <a href="javascript:void(0)" data-nav="skills" onclick="navigateToSection('skills')" class="hover:opacity-80 transition-opacity">Techs & Tools</a>
+        <a href="javascript:void(0)" data-nav="projects" onclick="navigateToSection('projects')" class="hover:opacity-80 transition-opacity">Projects</a>
+        <a href="javascript:void(0)" data-nav="achievements" onclick="navigateToSection('achievements')" class="hover:opacity-80 transition-opacity">Achievements</a>
+        <a href="javascript:void(0)" data-nav="contact" onclick="navigateToSection('contact')" class="hover:opacity-80 transition-opacity">Contact</a>
       </nav>
 
       <div class="flex items-center gap-2">
@@ -385,18 +552,14 @@
     <a href="javascript:void(0)" onclick="returnToLanding(); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">HOME</a>
     <a href="javascript:void(0)" onclick="navigateToSection('about'); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">ABOUT</a>
     <a href="javascript:void(0)" onclick="navigateToSection('skills'); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">TECHS & TOOLS</a>
-    <a href="javascript:void(0)" onclick="navigateToSection('projects'); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">SELECTED WORK</a>
+    <a href="javascript:void(0)" onclick="navigateToSection('projects'); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">PROJECTS</a>
     <a href="javascript:void(0)" onclick="navigateToSection('achievements'); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">ACHIEVEMENTS</a>
     <a href="javascript:void(0)" onclick="navigateToSection('contact'); closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">CONTACT</a>
   </div>
 
-  <!-- 
-  ==========================================================================
-  PAGE 1 — EDITORIAL HERO (PRESERVED FULLY)
-  ==========================================================================
-  -->
+  <!-- PAGE 1 — HERO (COMPLETELY UNTOUCHED) -->
   <section id="hero" class="hero-container bg-gradient-to-b from-hero-top via-hero-mid to-hero-deep flex flex-col justify-between select-none">
-    
+
     <div class="absolute inset-0 editorial-grid pointer-events-none"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none"></div>
 
@@ -405,7 +568,6 @@
     <div class="reg-cross bottom-12 left-5 sm:bottom-12 sm:left-7"></div>
     <div class="reg-cross bottom-12 right-5 sm:bottom-12 sm:right-7"></div>
 
-    <!-- Top Status Bar -->
     <div class="relative z-10 w-full pt-14 sm:pt-16 px-6 sm:px-10 flex justify-between items-center text-[11px] font-mono tracking-wider text-white/70">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-jd-yellow animate-pulse"></span>
@@ -413,24 +575,23 @@
       </div>
     </div>
 
-    <!-- Central Hero Stage -->
     <div class="relative z-10 w-full flex-1 flex flex-col items-center justify-center px-4 sm:px-10 overflow-hidden" id="hero-stage">
-      
+
       <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-baseline justify-center px-6 sm:px-12 pointer-events-none z-0">
-        
+
         <h1 class="hero-title-ghost font-display font-black text-white text-center opacity-15 whitespace-nowrap leading-none m-0" id="hero-ghost-text">
           Hi,.......I'm 
         </h1>
 
         <div class="absolute right-6 sm:right-12 bottom-0 z-20">
-          <div 
+          <div
             id="hero-talk-btn"
-            onclick="triggerCameraZoom()" 
+            onclick="triggerCameraZoom()"
             class="pointer-events-auto group cursor-pointer bg-[#181614]/90 backdrop-blur-md text-white p-2 sm:p-2.5 rounded-xl border border-jd-yellow/30 shadow-2xl flex items-center gap-3 transition-all duration-300 hover:scale-[1.05] hover:border-jd-yellow active:scale-95 shrink-0"
           >
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg overflow-hidden bg-white/10 shrink-0 border border-jd-yellow/20">
-              <img 
-                src="images/bee.png" 
+              <img
+                src="images/bee.png"
                 alt="Shivanandha K K"
                 onerror="this.onerror=null; this.src=window.PORTFOLIO_CONFIG.fallbackPhoto;"
                 class="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-300"
@@ -457,9 +618,9 @@
 
       <div class="relative z-10 w-[185px] xs:w-[210px] sm:w-[250px] md:w-[285px] aspect-[4/5] flex items-end justify-center pointer-events-none transition-transform duration-200" id="hero-portrait-container">
         <div class="relative w-full h-full flex items-end justify-center">
-          <img 
+          <img
             id="hero-portrait-img"
-            src="images/profile.jpg" 
+            src="images/profile.jpg"
             alt="Shivanandha K K"
             onerror="this.onerror=null; this.src=window.PORTFOLIO_CONFIG.fallbackPhoto;"
             class="w-full h-full object-cover object-top rounded-2xl filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.45)]"
@@ -483,517 +644,538 @@
 
   </section>
 
-  <!-- 
-  ==========================================================================
-  PORTFOLIO BODY SECTIONS (ALL STATIC TO WINDOW & SLIDE UP)
-  ==========================================================================
-  -->
+  <!-- PORTFOLIO BODY: PAGE STACK -->
   <main id="main-content">
 
-    <!-- PAGE 2 — ABOUT / BENTO DASHBOARD -->
-    <section id="about" class="window-page bg-jd-canvas border-b border-jd-charcoal/10 pt-16">
-      <div class="bento-shell w-full">
-        
-        <div class="flex items-end justify-between mb-5 pb-2.5 border-b border-jd-charcoal/10">
-          <div>
-            <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-jd-ink tracking-tight flex items-baseline">
-              <span>Portfolio</span>
-              <span class="text-jd-ink font-mono text-xl sm:text-2xl font-bold ml-0.5">⌝</span>
-            </h2>
-          </div>
-          <div></div>
-        </div>
+    <!-- PAGE 2 — ABOUT ME -->
+    <section id="about" class="window-page is-active" aria-label="About Me">
+      <div class="page-scroll">
+        <div class="page-inner bento-shell">
 
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
-          
-          <!-- CONTAINER 1: ABOUT DESCRIPTION (Photo removed, Full visible email) -->
-          <div class="md:col-span-5 bg-jd-periwinkle rounded-[26px] p-6 sm:p-7 text-white flex flex-col justify-between shadow-bento relative overflow-hidden group">
+          <header class="page-head reveal" style="--d:0">
             <div>
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-[10px] font-bold tracking-wide uppercase mb-6">
-                <span class="w-2 h-2 rounded-full bg-jd-mint"></span>
-                <span>About Me</span>
+              <h2 class="page-title"><span>About Me</span><span class="page-title-mark accent-peri">⌝</span></h2>
+              <p class="page-sub">Who I am, where I study and what I build with.</p>
+            </div>
+            <div class="page-tag">Academia</div>
+          </header>
+
+          <div class="flex flex-col gap-4 lg:gap-5">
+
+            <!-- MAIN CONTAINER: About Me description -->
+            <div class="reveal bg-jd-periwinkle rounded-[28px] p-6 sm:p-8 lg:p-10 text-white shadow-[0_22px_44px_-18px_rgba(116,124,212,0.55),0_2px_6px_rgba(21,22,25,0.06)] border border-white/20 relative overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center" style="--d:1">
+              <div class="md:col-span-5">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-[12px] font-bold tracking-wide uppercase mb-5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-jd-mint"></span>
+                  <span>Introduction</span>
+                </div>
+                <div class="text-[12px] text-white/85 font-mono uppercase tracking-wider mb-1.5">HELLO,</div>
+                <h3 class="font-display font-extrabold text-4xl sm:text-5xl leading-[1.05] tracking-tight">
+                  I'm<br />Shivanandha
+                </h3>
               </div>
 
-              <div class="text-[11px] text-white/80 font-mono uppercase tracking-wider mb-1">HELLO,</div>
-              <h3 class="font-display font-extrabold text-2xl sm:text-3xl leading-snug mb-3 tracking-tight">
-                Im,<br />Shivanandha
-              </h3>
-              <p class="text-white/95 text-[13px] leading-relaxed mb-4 font-normal">
-                Computer Science student building modern, accessible web applications with clean logic and disciplined aesthetics.
-              </p>
-            </div>
+              <div class="md:col-span-7 flex flex-col gap-4">
+                <p class="text-white text-[16px] lg:text-[17px] leading-relaxed font-medium">
+I’m a Computer Science graduate who enjoys turning curiosity into something practical. I like understanding how technology works, experimenting with new ideas, and building solutions that have a purpose beyond just being a project.
 
-            <div class="pt-4 border-t border-white/20 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-white">
-              <span class="break-all font-semibold" id="bento-email-disp">kkshivanandha@gmail.com</span>
-              <button onclick="copyEmailToClipboard()" class="hover:text-jd-yellow font-bold underline underline-offset-2 cursor-pointer flex items-center gap-1 shrink-0 transition-colors">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>COPY</span>
-              </button>
-            </div>
-          </div>
+My journey has taken me through web development, programming, databases, data visualization, research, and technology-driven projects. Each experience has taught me something different — from solving technical problems to presenting ideas and looking at technology from a user’s perspective.
 
-          <!-- RIGHT COLUMN CONTAINERS -->
-          <div class="md:col-span-7 flex flex-col gap-4 justify-between">
-            
-            <!-- CONTAINER 2: COLLEGE NAME, LOCATION, CGPA -->
-            <div class="bg-jd-cardBg rounded-[26px] p-6 shadow-bento border border-jd-charcoal/5 flex flex-col justify-between flex-1">
-              <div>
-                <div class="flex items-start justify-between mb-3">
-                  <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal text-[10px] font-bold">
-                    <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-jd-periwinkle"></i>
-                    <span>Undergraduate Degree</span>
-                  </div>
-                  <span class="text-[10px] font-mono text-jd-charcoal/40 uppercase font-semibold">ACADEMIA</span>
+I’m always curious about what I can learn next, and I believe the best way to grow is to keep exploring, building, and learning from every challenge.                </p>
+                <div class="pt-4 border-t border-white/25 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-[12px] font-mono text-white">
+                  <span class="break-all font-semibold" id="bento-email-disp">kkshivanandha@gmail.com</span>
+                  <button onclick="copyEmailToClipboard()" class="hover:text-jd-yellow font-bold underline underline-offset-4 cursor-pointer flex items-center gap-1 shrink-0 transition-colors">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>COPY</span>
+                  </button>
                 </div>
+              </div>
+            </div>
 
-                <div class="my-1.5">
-                  <div class="text-[10px] font-mono uppercase text-jd-periwinkle font-bold tracking-wider mb-1">
-                    B.SC. COMPUTER SCIENCE
-                  </div>
-                  <h4 class="font-display font-extrabold text-lg sm:text-xl text-jd-ink mb-1.5 tracking-tight">
+            <!-- THREE SMALL INFORMATION CARDS -->
+            <div class="reveal grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5" style="--d:2">
+
+              <div class="lift bg-jd-cardBg rounded-[24px] p-5 lg:p-6 shadow-bento border border-white flex flex-col gap-2.5">
+                <div class="flex items-center gap-2 text-[11px] font-mono font-bold uppercase text-jd-periwinkle">
+                  <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                  <span>Education</span>
+                </div>
+                <div>
+                  <h4 class="font-display font-extrabold text-lg lg:text-xl text-jd-ink tracking-tight leading-snug mb-1">
                     PSGR Krishnammal College for Women
                   </h4>
-                  <p class="text-jd-charcoal/75 text-[12.5px] leading-relaxed">
-                    Rigorous computer science curriculum emphasizing core data structures, algorithms, relational database architecture, and frontend web development.
-                  </p>
+                  <p class="text-[13px] font-semibold text-jd-charcoal/70">B.Sc. Computer Science</p>
                 </div>
               </div>
 
-              <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500 font-mono">
-                <span class="flex items-center gap-1.5">
-                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-hero-top"></i>
-                  <span>Coimbatore, Tamil Nadu</span>
-                </span>
-                <span class="text-[10px] font-mono text-jd-charcoal/40 uppercase font-semibold">Autonomous Institution</span>
-              </div>
-            </div>
-
-            <!-- CONTAINER 3 & CGPA ROW -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              
-              <!-- CUMULATIVE CGPA: Arrow removed -->
-              <div class="bg-jd-mint rounded-[26px] p-5 shadow-bento flex flex-col justify-between">
-                <div class="flex justify-between items-center text-[10px] font-mono font-bold text-jd-mintDark">
-                  <span class="uppercase">CUMULATIVE CGPA</span>
+              <div class="lift bg-jd-mint rounded-[24px] p-5 lg:p-6 shadow-bento border border-white/40 relative overflow-hidden flex flex-col gap-2.5">
+                <i data-lucide="award" class="absolute -right-2 -bottom-3 w-20 h-20 text-white/35 pointer-events-none"></i>
+                <div class="flex items-center gap-2 text-[11px] font-mono font-bold uppercase text-jd-mintDark">
+                  <i data-lucide="award" class="w-4 h-4"></i>
+                  <span>CGPA</span>
                 </div>
-
-                <div class="my-2">
-                  <div class="font-display font-extrabold text-3xl sm:text-4xl text-jd-charcoal tracking-tight" id="cgpa-metric-num">
-                    8.8<span class="text-base text-jd-charcoal/60 font-semibold"> / 10</span>
-                  </div>
-                  <div class="text-[11px] font-medium text-jd-mintDark font-semibold mt-0.5">
-                    Academic Performance Index
+                <div class="relative">
+                  <div class="font-display font-extrabold text-4xl lg:text-5xl text-jd-charcoal tracking-tight leading-none" id="cgpa-metric-num">
+                    8.62<span class="text-base text-jd-charcoal/60 font-semibold"> / 10</span>
                   </div>
                 </div>
-
-                <div class="text-[9px] font-mono text-jd-mintDark/70 uppercase font-semibold">
-                  PSGR Krishnammal College
-                </div>
               </div>
 
-              <!-- APPLIED STACK: Only top arrow navigates (Hyperlink text removed) -->
-              <div class="bg-jd-yellow rounded-[26px] p-5 shadow-bento flex flex-col justify-between">
-                <div class="flex justify-between items-center text-[10px] font-mono font-bold text-jd-yellowDark">
-                  <span class="uppercase">APPLIED STACK</span>
-                  <a href="javascript:void(0)" onclick="navigateToSection('skills')" aria-label="Go to Techs and Tools" class="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center hover:bg-white transition-colors cursor-pointer group">
-                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-jd-yellowDark group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+              <div class="lift bg-jd-yellow rounded-[24px] p-5 lg:p-6 shadow-bento border border-white/40 flex flex-col gap-2.5">
+                <div class="flex justify-between items-center text-[11px] font-mono font-bold text-jd-yellowDark">
+                  <span class="flex items-center gap-2 uppercase">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                    <span>Technical Focus</span>
+                  </span>
+                  <a href="javascript:void(0)" onclick="navigateToSection('skills')" aria-label="Go to Techs and Tools" class="w-7 h-7 rounded-full bg-white/30 flex items-center justify-center hover:bg-white transition-colors cursor-pointer group shrink-0">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-jd-yellowDark group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
                   </a>
                 </div>
-
-                <div class="my-2">
-                  <div class="font-display font-extrabold text-3xl sm:text-4xl text-jd-charcoal tracking-tight">
-                    06
-                  </div>
-                  <div class="text-[11px] font-semibold text-jd-yellowDark mt-0.5">
-                    Core Practical Tools & Skills
-                  </div>
-                </div>
-
-                <div class="text-[9px] font-mono text-jd-yellowDark/80 uppercase font-semibold">
-                  Web, Scripting & Data
-                </div>
+                <p class="text-[13px] leading-relaxed font-semibold text-jd-charcoal/85">Focused on clean, accessible web interfaces backed by solid data foundations, from relational databases to analytics dashboards, with a growing interest in applying AI to real-world problems.</p>
               </div>
 
             </div>
           </div>
+
         </div>
       </div>
     </section>
 
     <!-- PAGE 3 — TECHS & TOOLS -->
-    <section id="skills" class="window-page bg-jd-lavenderBg border-b border-jd-charcoal/10 pt-16">
-      <div class="bento-shell relative z-10 w-full">
-        <div class="text-center max-w-md mx-auto mb-5">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-jd-periwinkle border border-jd-periwinkle/20 text-[10px] font-mono font-bold uppercase tracking-wider mb-1.5">
-            <i data-lucide="orbit" class="w-3.5 h-3.5"></i>
-            <span>Interactive Constellation</span>
-          </div>
-          <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-jd-ink tracking-tight mb-1">
-            Techs & Tools<span class="font-mono text-jd-periwinkle font-normal text-xl">’</span>
-          </h2>
-          <p class="text-[12px] text-jd-charcoal/70 font-medium">
-            Technologies I've been working with. Tap or click any floating node to view live proficiency.
-          </p>
-        </div>
+    <section id="skills" class="window-page" aria-label="Techs and Tools">
+      <div class="page-scroll">
+        <div class="page-inner bento-shell">
 
-        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4" id="skills-pill-bar"></div>
-
-        <div class="relative w-full rounded-[26px] bg-white border border-white shadow-bento p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch">
-          <div class="relative flex-1 min-h-[260px] sm:min-h-[290px] rounded-2xl bg-[#F7F6F2] border border-gray-100 overflow-hidden pastel-dot-grid select-none" id="constellation-arena">
-            <canvas id="constellation-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
-
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              <div class="w-16 h-16 rounded-full border border-jd-periwinkle/30 flex flex-col items-center justify-center bg-white/60 backdrop-blur-xs shadow-xs">
-                <span class="text-[7.5px] font-mono font-bold text-jd-periwinkle tracking-wider uppercase">CORE</span>
-                <span class="text-[10px] font-display font-extrabold text-jd-ink tracking-tight">STACK</span>
-              </div>
-            </div>
-
-            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="html" id="bubble-html">
-              <span class="w-6 h-6 rounded-full bg-[#E44D26]/15 text-[#E44D26] flex items-center justify-center text-[10px] font-mono font-bold">&lt;&gt;</span>
-              <span class="text-[12px] font-display font-bold text-jd-ink">HTML</span>
-            </button>
-
-            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="css" id="bubble-css">
-              <span class="w-6 h-6 rounded-full bg-[#264DE4]/15 text-[#264DE4] flex items-center justify-center text-[10px]"><i data-lucide="palette" class="w-3.5 h-3.5"></i></span>
-              <span class="text-[12px] font-display font-bold text-jd-ink">CSS</span>
-            </button>
-
-            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="javascript" id="bubble-javascript">
-              <span class="w-6 h-6 rounded-full bg-[#FFBE53]/35 text-[#8A5D07] flex items-center justify-center text-[10px] font-mono font-bold">JS</span>
-              <span class="text-[12px] font-display font-bold text-jd-ink">JavaScript</span>
-            </button>
-
-            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="python" id="bubble-python">
-              <span class="w-6 h-6 rounded-full bg-[#128848]/15 text-[#128848] flex items-center justify-center text-[10px]"><i data-lucide="terminal" class="w-3.5 h-3.5"></i></span>
-              <span class="text-[12px] font-display font-bold text-jd-ink">Python</span>
-            </button>
-
-            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="mysql" id="bubble-mysql">
-              <span class="w-6 h-6 rounded-full bg-[#00758F]/15 text-[#00758F] flex items-center justify-center text-[10px]"><i data-lucide="database" class="w-3.5 h-3.5"></i></span>
-              <span class="text-[12px] font-display font-bold text-jd-ink">MySQL</span>
-            </button>
-
-            <button type="button" class="skill-node absolute z-20 px-3.5 py-2 rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="powerbi" id="bubble-powerbi">
-              <span class="w-6 h-6 rounded-full bg-[#D68E00]/15 text-[#9E6900] flex items-center justify-center text-[10px]"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i></span>
-              <span class="text-[12px] font-display font-bold text-jd-ink">Power BI</span>
-            </button>
-          </div>
-
-          <div class="w-full md:w-[310px] bg-jd-canvas rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between" id="inspector-card">
+          <header class="page-head reveal" style="--d:0">
             <div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-[9px] font-mono uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-full bg-jd-periwinkle/15 text-jd-periwinkle" id="inspect-category">
-                  Frontend Structure
-                </span>
-                <span class="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded" id="inspect-level">
-                  Advanced
-                </span>
-              </div>
-
-              <div class="flex items-center gap-3 mb-3.5">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-xs transition-colors duration-300" id="inspect-icon-wrap" style="background-color: #E44D26;">
-                  <i data-lucide="code" class="w-5 h-5" id="inspect-icon-el"></i>
-                </div>
-                <div>
-                  <h3 class="font-display font-extrabold text-xl text-jd-ink leading-tight tracking-tight" id="inspect-title">
-                    HTML
-                  </h3>
-                  <span class="text-[10px] font-mono text-gray-500">Verified Technical Foundation</span>
-                </div>
-              </div>
-
-              <div class="my-3 bg-white rounded-xl p-3 border border-gray-200/80 shadow-xs">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                  <span class="font-mono text-[10px] uppercase font-bold text-gray-600">Progression Level</span>
-                  <span class="font-display font-extrabold text-sm text-jd-ink" id="inspect-percentage">92%</span>
-                </div>
-                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full transition-all duration-500 ease-out" id="inspect-bar" style="width: 92%; background-color: #E44D26;"></div>
-                </div>
-              </div>
-
-              <div>
-                <div class="text-[9px] font-mono uppercase text-gray-400 font-bold mb-1 tracking-wider">
-                  COMPETENCIES & SCOPE
-                </div>
-                <p class="text-[12px] text-jd-charcoal/80 leading-relaxed font-medium" id="inspect-desc">
-                  Semantic HTML5 architecture, modern DOM structuring, accessibility (a11y), and viewport framing.
-                </p>
-              </div>
+              <h2 class="page-title"><span>Techs &amp; Tools</span><span class="page-title-mark accent-rust">⌝</span></h2>
+              <p class="page-sub">Technologies I've been working with. Tap or click any node to see the details.</p>
             </div>
+            <div class="page-tag">Interactive Constellation</div>
+          </header>
 
-            <div class="mt-4 pt-3 border-t border-gray-200/80 flex items-center justify-between text-[10px] font-mono">
-              <span class="text-gray-500">Curriculum Verified</span>
-              <button onclick="cycleNextSkill()" class="text-jd-periwinkle font-bold hover:underline cursor-pointer flex items-center gap-1">
-                <span>Next Skill</span>
-                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          <div class="flex flex-wrap items-center justify-center gap-2 mb-4 reveal" id="skills-pill-bar" style="--d:1"></div>
+
+          <div class="reveal relative w-full rounded-[26px] bg-[#FFFEFB] border border-white/90 shadow-[0_26px_50px_-26px_rgba(138,93,7,0.32),0_2px_6px_rgba(21,22,25,0.04)] p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch" style="--d:2">
+            <div class="relative flex-1 min-h-[280px] sm:min-h-[320px] rounded-2xl bg-[#FFFBEE] border border-[#F6EBCB] overflow-hidden pastel-dot-grid select-none" id="constellation-arena">
+              <canvas id="constellation-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <div class="w-16 h-16 rounded-full border border-jd-periwinkle/30 flex flex-col items-center justify-center bg-white/60 backdrop-blur-xs shadow-xs">
+                  <span class="text-[7.5px] font-mono font-bold text-jd-periwinkle tracking-wider uppercase">CORE</span>
+                  <span class="text-[10px] font-display font-extrabold text-jd-ink tracking-tight">STACK</span>
+                </div>
+              </div>
+
+              <button type="button" class="skill-node absolute z-20 px-[18px] py-[10px] rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="html" id="bubble-html">
+                <span class="w-7 h-7 rounded-full bg-[#E44D26]/15 text-[#E44D26] flex items-center justify-center text-[11px] font-mono font-bold">&lt;&gt;</span>
+                <span class="text-[13.5px] font-display font-bold text-jd-ink">HTML</span>
+              </button>
+
+              <button type="button" class="skill-node absolute z-20 px-[18px] py-[10px] rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="css" id="bubble-css">
+                <span class="w-7 h-7 rounded-full bg-[#264DE4]/15 text-[#264DE4] flex items-center justify-center text-[11px]"><i data-lucide="palette" class="w-4 h-4"></i></span>
+                <span class="text-[13.5px] font-display font-bold text-jd-ink">CSS</span>
+              </button>
+
+              <button type="button" class="skill-node absolute z-20 px-[18px] py-[10px] rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="javascript" id="bubble-javascript">
+                <span class="w-7 h-7 rounded-full bg-[#FFBE53]/35 text-[#8A5D07] flex items-center justify-center text-[11px] font-mono font-bold">JS</span>
+                <span class="text-[13.5px] font-display font-bold text-jd-ink">JavaScript</span>
+              </button>
+
+              <button type="button" class="skill-node absolute z-20 px-[18px] py-[10px] rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="python" id="bubble-python">
+                <span class="w-7 h-7 rounded-full bg-[#128848]/15 text-[#128848] flex items-center justify-center text-[11px]"><i data-lucide="terminal" class="w-4 h-4"></i></span>
+                <span class="text-[13.5px] font-display font-bold text-jd-ink">Python</span>
+              </button>
+
+              <button type="button" class="skill-node absolute z-20 px-[18px] py-[10px] rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="mysql" id="bubble-mysql">
+                <span class="w-7 h-7 rounded-full bg-[#00758F]/15 text-[#00758F] flex items-center justify-center text-[11px]"><i data-lucide="database" class="w-4 h-4"></i></span>
+                <span class="text-[13.5px] font-display font-bold text-jd-ink">MySQL</span>
+              </button>
+
+              <button type="button" class="skill-node absolute z-20 px-[18px] py-[10px] rounded-full bg-white border border-gray-200 shadow-node flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 focus:outline-none" data-skill-id="powerbi" id="bubble-powerbi">
+                <span class="w-7 h-7 rounded-full bg-[#D68E00]/15 text-[#9E6900] flex items-center justify-center text-[11px]"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></span>
+                <span class="text-[13.5px] font-display font-bold text-jd-ink">Power BI</span>
               </button>
             </div>
+
+            <!-- Inspector card: wider, wrapping header, fixed-height description area so nothing overlaps -->
+            <div class="w-full md:w-[340px] lg:w-[370px] shrink-0 bg-[#FFF9E8] rounded-2xl p-5 border border-[#F6EBCB] shadow-[0_10px_24px_-16px_rgba(138,93,7,0.25)] flex flex-col justify-between" id="inspector-card">
+              <div>
+                <div class="flex flex-wrap items-center justify-between gap-1.5 mb-3.5">
+                  <span class="text-[9.5px] font-mono uppercase tracking-wider font-bold px-2.5 py-1 rounded-full bg-jd-periwinkle/15 text-jd-periwinkle" id="inspect-category">
+                    Frontend Structure
+                  </span>
+                  <span class="text-[9.5px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded" id="inspect-level">
+                    Advanced
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white shadow-xs transition-colors duration-300 shrink-0" id="inspect-icon-wrap" style="background-color: #E44D26;">
+                    <i data-lucide="code" class="w-5 h-5"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="font-display font-extrabold text-2xl text-jd-ink leading-tight tracking-tight" id="inspect-title">
+                      HTML
+                    </h3>
+                    <span class="text-[10.5px] font-mono text-gray-500">Verified Technical Foundation</span>
+                  </div>
+                </div>
+
+                <div class="mb-4 bg-white rounded-xl p-3.5 border border-gray-200/80 shadow-xs">
+                  <div class="flex items-center justify-between gap-3 mb-2">
+                    <span class="font-mono text-[10px] uppercase font-bold text-gray-600">Progression Level</span>
+                    <span class="font-display font-extrabold text-base text-jd-ink" id="inspect-percentage">92%</span>
+                  </div>
+                  <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500 ease-out" id="inspect-bar" style="width: 92%; background-color: #E44D26;"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-[9.5px] font-mono uppercase text-gray-400 font-bold mb-1.5 tracking-wider">
+                    COMPETENCIES &amp; SCOPE
+                  </div>
+                  <p class="text-[13px] text-jd-charcoal/85 leading-relaxed font-medium min-h-[8.5rem]" id="inspect-desc">
+                    Used HTML to structure web pages and organize content using headings, sections, forms, links, images, tables, and semantic elements. Familiar with creating well-structured and user-friendly webpage layouts.
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-t border-gray-200/80 flex items-center justify-between text-[10.5px] font-mono">
+                <span class="text-gray-500">Curriculum Verified</span>
+                <button onclick="cycleNextSkill()" class="text-jd-periwinkle font-bold hover:underline cursor-pointer flex items-center gap-1">
+                  <span>Next Skill</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
     </section>
 
     <!-- PAGE 4 — PROJECTS -->
-    <section id="projects" class="window-page bg-jd-canvas border-b border-jd-charcoal/10 pt-16">
-      <div class="bento-shell w-full">
-        <div class="flex items-end justify-between mb-5 pb-2.5 border-b border-jd-charcoal/10">
-          <div>
-            <div class="text-[10px] font-mono font-bold tracking-widest text-hero-top uppercase mb-0.5">
-              INDEX 04 // CASE STUDIES
-            </div>
-            <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-jd-ink tracking-tight flex items-baseline">
-              <span>Selected Work</span>
-              <span class="text-hero-top font-mono text-xl font-bold ml-0.5">⌝</span>
-            </h2>
-          </div>
-          <div class="text-[10px] font-mono text-jd-charcoal/50 uppercase text-right">
-            TECHNICAL IMPLEMENTATIONS
-          </div>
-        </div>
+    <section id="projects" class="window-page" aria-label="Projects">
+      <div class="page-scroll">
+        <div class="page-inner bento-shell">
 
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-          <div class="md:col-span-7 bg-white rounded-[26px] p-6 shadow-bento border border-jd-charcoal/5 flex flex-col justify-between group">
+          <header class="page-head reveal" style="--d:0">
             <div>
-              <div class="flex items-start justify-between mb-2">
-                <span class="text-[9px] font-mono uppercase tracking-wider text-hero-top font-bold bg-hero-top/10 px-2.5 py-0.5 rounded-full">
-                  ANALYTICS & RELATIONAL DB
+              <h2 class="page-title"><span>Projects</span><span class="page-title-mark accent-orange">⌝</span></h2>
+              <p class="page-sub">Technical projects across healthcare data security, analytics and frontend development.</p>
+            </div>
+            <div class="page-tag">Technical Implementations</div>
+          </header>
+
+          <div class="reveal grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-stretch" style="--d:1">
+
+            <!-- FEATURED: FINAL-YEAR PROJECT -->
+            <div class="lift md:col-span-7 bg-jd-charcoal text-white rounded-[28px] p-6 sm:p-7 lg:p-8 shadow-bento flex flex-col gap-5 relative overflow-hidden group">
+              <div class="flex items-center justify-between gap-3">
+                <span class="inline-flex items-center gap-2 text-[10.5px] font-mono uppercase tracking-wider text-jd-charcoal font-bold bg-jd-yellow px-3 py-1 rounded-full">
+                  <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                  <span>Final-Year Project</span>
                 </span>
-                <a href="javascript:void(0)" onclick="navigateToSection('contact')" class="w-7 h-7 rounded-full bg-jd-canvas flex items-center justify-center text-jd-charcoal group-hover:bg-jd-ink group-hover:text-white transition-colors">
-                  <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                <a href="javascript:void(0)" onclick="navigateToSection('contact')" aria-label="Go to contact" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-jd-yellow group-hover:text-jd-charcoal transition-colors shrink-0">
+                  <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                 </a>
               </div>
 
-              <h3 class="font-display font-extrabold text-lg sm:text-xl text-jd-ink mb-1.5 tracking-tight">
-                Academic Intelligence Dashboard
-              </h3>
-              <p class="text-jd-charcoal/75 text-[12.5px] leading-relaxed mb-4">
-                End-to-end data pipeline analyzing student academic cohorts. Built with Python data aggregation scripts, MySQL relational database normalization, and Power BI interactive performance dashboards.
-              </p>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">Python</span>
-              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">MySQL</span>
-              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">Power BI</span>
-            </div>
-          </div>
-
-          <div class="md:col-span-5 bg-jd-charcoal text-white rounded-[26px] p-6 shadow-bento flex flex-col justify-between group">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <span class="text-[9px] font-mono uppercase tracking-wider text-jd-yellow font-bold bg-white/10 px-2.5 py-0.5 rounded-full">
-                  FRONTEND ENGINEERING
-                </span>
-                <a href="javascript:void(0)" onclick="navigateToSection('contact')" class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-jd-yellow group-hover:text-jd-charcoal transition-colors">
-                  <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-                </a>
+              <div>
+                <div class="text-[10px] font-mono uppercase tracking-wider text-jd-yellow/80 font-bold mb-1.5">Project Title</div>
+                <h3 class="font-display font-extrabold text-2xl sm:text-[1.7rem] leading-tight tracking-tight">
+                  Enhancing Health Data Security Through Blockchain Technology
+                </h3>
               </div>
 
-              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white mb-1.5 tracking-tight">
-                Modular Creative Interface
-              </h3>
-              <p class="text-white/70 text-[12.5px] leading-relaxed mb-4">
-                Modern frontend application built with semantic HTML5, adaptive CSS Grid layouts, and vanilla JavaScript DOM architecture with interactive micro-animations.
-              </p>
+              <div>
+                <div class="text-[10px] font-mono uppercase tracking-wider text-jd-yellow/80 font-bold mb-2">Technologies Used</div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-white font-medium">Java</span>
+                  <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-white font-medium">JSP</span>
+                  <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-white font-medium">HTML</span>
+                  <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-white font-medium">CSS</span>
+                  <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-white font-medium">JavaScript</span>
+                  <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-white font-medium">MySQL Server</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-[10px] font-mono uppercase tracking-wider text-jd-yellow/80 font-bold mb-1.5">Overview</div>
+                <p class="text-white/80 text-[13.5px] leading-relaxed">
+                  A healthcare-focused web application designed to improve the security and privacy of patient health records. The project uses encryption and blockchain-inspired hash chaining to create tamper-evident data, along with role-based access control and patient-managed permissions for secure health data sharing.
+                </p>
+              </div>
+
+              <div class="mt-auto pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2 text-[11.5px] font-semibold text-white/85">
+                <span class="flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5 text-jd-yellow shrink-0"></i>Encryption</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="link" class="w-3.5 h-3.5 text-jd-yellow shrink-0"></i>Hash chaining</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5 text-jd-yellow shrink-0"></i>Role-based access</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="user-check" class="w-3.5 h-3.5 text-jd-yellow shrink-0"></i>Patient-managed access</span>
+              </div>
             </div>
 
-            <div class="flex flex-wrap gap-2">
-              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium">JavaScript</span>
-              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium">CSS3</span>
-              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium">HTML5</span>
+            <!-- OTHER PROJECTS -->
+            <div class="md:col-span-5 flex flex-col gap-4 lg:gap-5">
+
+              <div class="lift flex-1 bg-white rounded-[26px] p-5 sm:p-6 shadow-bento border border-jd-charcoal/5 flex flex-col justify-between gap-4 group">
+                <div>
+                  <div class="flex items-start justify-between gap-3 mb-2.5">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-hero-top font-bold bg-hero-top/10 px-3 py-1 rounded-full">
+                      ANALYTICS & RELATIONAL DB
+                    </span>
+                    <a href="javascript:void(0)" onclick="navigateToSection('contact')" aria-label="Go to contact" class="w-8 h-8 rounded-full bg-jd-canvas flex items-center justify-center text-jd-charcoal group-hover:bg-jd-ink group-hover:text-white transition-colors shrink-0">
+                      <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                  </div>
+                  <h3 class="font-display font-extrabold text-lg sm:text-xl text-jd-ink mb-1.5 tracking-tight leading-snug">
+                    Academic Intelligence Dashboard
+                  </h3>
+                  <p class="text-jd-charcoal/80 text-[12.5px] leading-relaxed">
+                    End-to-end data pipeline analyzing student academic cohorts. Built with Python data aggregation scripts, MySQL relational database normalization, and Power BI interactive performance dashboards.
+                  </p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">Python</span>
+                  <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">MySQL</span>
+                  <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">Power BI</span>
+                </div>
+              </div>
+
+              <div class="lift flex-1 bg-white rounded-[26px] p-5 sm:p-6 shadow-bento border border-jd-charcoal/5 flex flex-col justify-between gap-4 group">
+                <div>
+                  <div class="flex items-start justify-between gap-3 mb-2.5">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-jd-periwinkle font-bold bg-jd-periwinkle/12 px-3 py-1 rounded-full">
+                      FRONTEND ENGINEERING
+                    </span>
+                    <a href="javascript:void(0)" onclick="navigateToSection('contact')" aria-label="Go to contact" class="w-8 h-8 rounded-full bg-jd-canvas flex items-center justify-center text-jd-charcoal group-hover:bg-jd-ink group-hover:text-white transition-colors shrink-0">
+                      <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                  </div>
+                  <h3 class="font-display font-extrabold text-lg sm:text-xl text-jd-ink mb-1.5 tracking-tight leading-snug">
+                    Modular Creative Interface
+                  </h3>
+                  <p class="text-jd-charcoal/80 text-[12.5px] leading-relaxed">
+                    Modern frontend application built with semantic HTML5, adaptive CSS Grid layouts, and vanilla JavaScript DOM architecture with interactive micro-animations.
+                  </p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">JavaScript</span>
+                  <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">CSS3</span>
+                  <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">HTML5</span>
+                </div>
+              </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </section>
 
     <!-- PAGE 5 — ACHIEVEMENTS -->
-    <section id="achievements" class="window-page bg-[#EFECE6] border-b border-jd-charcoal/10 pt-16">
-      <div class="bento-shell w-full">
-        <div class="flex items-end justify-between mb-5 pb-2.5 border-b border-jd-charcoal/10">
-          <div>
-            <div class="text-[10px] font-mono font-bold tracking-widest text-jd-periwinkle uppercase mb-0.5">
-              INDEX 05 // RECORD
-            </div>
-            <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-jd-ink tracking-tight flex items-baseline">
-              <span>Achievements</span>
-              <span class="text-jd-periwinkle font-mono text-xl font-bold ml-0.5">⌝</span>
-            </h2>
-          </div>
-          <div class="text-[10px] font-mono text-jd-charcoal/50 uppercase text-right">
-            AUTHENTIC CREDENTIALS
-          </div>
-        </div>
+    <section id="achievements" class="window-page" aria-label="Achievements">
+      <div class="page-scroll">
+        <div class="page-inner bento-shell">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div class="bg-white rounded-[26px] p-5 shadow-bento flex flex-col justify-between border border-jd-charcoal/5">
+          <header class="page-head reveal" style="--d:0">
             <div>
-              <div class="w-8 h-8 rounded-lg bg-jd-periwinkle/15 text-jd-periwinkle flex items-center justify-center mb-3">
-                <i data-lucide="award" class="w-4 h-4"></i>
-              </div>
-              <div class="text-[9px] font-mono uppercase text-jd-periwinkle font-bold mb-0.5">
-                INSTITUTION
-              </div>
-              <h3 class="font-display font-extrabold text-base text-jd-ink mb-1.5 tracking-tight">
-                PSGR Krishnammal College for Women
-              </h3>
-              <p class="text-jd-charcoal/70 text-[12px] leading-relaxed">
-                Enrolled in B.Sc. Computer Science program, mastering algorithmic fundamentals, database design, and software programming logic.
-              </p>
+              <h2 class="page-title"><span>Achievements</span><span class="page-title-mark accent-peri">⌝</span></h2>
+              <p class="page-sub">Research presentations, a hackathon proposal and a published lab manual.</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-gray-100 text-[9px] font-mono text-gray-500">
-              Coimbatore, Tamil Nadu
+            <div class="page-tag">Research &amp; Recognition</div>
+          </header>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 lg:gap-6 items-start">
+
+            <!-- RESEARCH & PAPER PRESENTATIONS -->
+            <div class="reveal md:col-span-7" style="--d:1">
+              <h3 class="font-display font-extrabold text-lg text-jd-ink tracking-tight flex items-center gap-2 mb-3">
+                <span class="w-7 h-7 rounded-lg bg-jd-periwinkle/15 text-jd-periwinkle flex items-center justify-center"><i data-lucide="presentation" class="w-4 h-4"></i></span>
+                Research &amp; Paper Presentations
+              </h3>
+
+              <div class="flex flex-col gap-3">
+                <div class="lift bg-white rounded-[22px] p-4 sm:p-5 shadow-bento border border-jd-charcoal/5 flex gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-jd-periwinkle/15 text-jd-periwinkle flex items-center justify-center shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                  <div class="min-w-0">
+                    <div class="text-[10px] font-mono uppercase font-bold text-jd-periwinkle mb-1">Feb 2025</div>
+                    <h4 class="font-display font-extrabold text-[15px] text-jd-ink tracking-tight leading-snug">Security &amp; Privacy in AR</h4>
+                    <div class="text-[11px] font-mono text-jd-charcoal/55 mt-0.5 mb-1.5">National Conference on Emerging Trends in AR/VR/MR</div>
+                    <p class="text-jd-charcoal/80 text-[12.5px] leading-relaxed">Examined potential security threats and privacy risks in Augmented Reality systems and discussed possible defense mechanisms.</p>
+                  </div>
+                </div>
+
+                <div class="lift bg-white rounded-[22px] p-4 sm:p-5 shadow-bento border border-jd-charcoal/5 flex gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-jd-coral/20 text-[#D4533C] flex items-center justify-center shrink-0"><i data-lucide="megaphone" class="w-5 h-5"></i></div>
+                  <div class="min-w-0">
+                    <div class="text-[10px] font-mono uppercase font-bold text-[#D4533C] mb-1">12 Aug 2025</div>
+                    <h4 class="font-display font-extrabold text-[15px] text-jd-ink tracking-tight leading-snug mb-1.5">Immersive Marketing Strategy on AR and VR</h4>
+                    <p class="text-jd-charcoal/80 text-[12.5px] leading-relaxed">Explored the applications of AR and VR in immersive marketing, focusing on consumer engagement, personalization, and sales enhancement.</p>
+                  </div>
+                </div>
+
+                <div class="lift bg-white rounded-[22px] p-4 sm:p-5 shadow-bento border border-jd-charcoal/5 flex gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-jd-mint text-jd-mintDark flex items-center justify-center shrink-0"><i data-lucide="heart-pulse" class="w-5 h-5"></i></div>
+                  <div class="min-w-0">
+                    <div class="text-[10px] font-mono uppercase font-bold text-jd-mintDark mb-1">23 Jan 2026</div>
+                    <h4 class="font-display font-extrabold text-[15px] text-jd-ink tracking-tight leading-snug mb-1.5">AI-Driven Early Prediction of Diabetes Using Clinical Data with Personalized Risk Explanations</h4>
+                    <p class="text-jd-charcoal/80 text-[12.5px] leading-relaxed">Explored machine learning approaches for early diabetes prediction and the use of explainable AI to provide personalized risk insights and transparent clinical predictions.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SIH + PUBLICATION -->
+            <div class="md:col-span-5 flex flex-col gap-5">
+
+              <div class="reveal" style="--d:2">
+                <h3 class="font-display font-extrabold text-lg text-jd-ink tracking-tight flex items-center gap-2 mb-3">
+                  <span class="w-7 h-7 rounded-lg bg-jd-charcoal text-jd-yellow flex items-center justify-center"><i data-lucide="lightbulb" class="w-4 h-4"></i></span>
+                  Smart India Hackathon
+                </h3>
+                <div class="lift bg-jd-charcoal text-white rounded-[24px] p-5 sm:p-6 shadow-bento">
+                  <span class="inline-block text-[10px] font-mono uppercase tracking-wider text-jd-charcoal font-bold bg-jd-yellow px-3 py-1 rounded-full mb-3">Proposed Concept</span>
+                  <h4 class="font-display font-extrabold text-lg tracking-tight leading-snug mb-1.5">Smart India Hackathon (SIH) 2025</h4>
+                  <p class="text-white/75 text-[12.5px] leading-relaxed">Proposed an AI-powered multilingual mental health support concept for higher-education students, incorporating 24/7 chatbot support, anonymous peer groups, counsellor access, and early crisis detection.</p>
+                </div>
+              </div>
+
+              <div class="reveal" style="--d:3">
+                <h3 class="font-display font-extrabold text-lg text-jd-ink tracking-tight flex items-center gap-2 mb-3">
+                  <span class="w-7 h-7 rounded-lg bg-jd-yellow text-jd-yellowDark flex items-center justify-center"><i data-lucide="book-open" class="w-4 h-4"></i></span>
+                  Publication
+                </h3>
+                <div class="lift bg-jd-yellow rounded-[24px] p-5 sm:p-6 shadow-bento border border-jd-yellowDark/10 relative overflow-hidden">
+                  <i data-lucide="book-open" class="absolute -right-3 -bottom-3 w-24 h-24 text-white/30"></i>
+                  <span class="relative inline-block text-[10px] font-mono uppercase tracking-wider text-jd-yellowDark font-bold bg-white/55 px-3 py-1 rounded-full mb-3">Published on Amazon Kindle</span>
+                  <h4 class="relative font-display font-extrabold text-lg text-jd-charcoal tracking-tight leading-snug mb-1.5">Modern DevOps Tools and Techniques: A Practical Approach</h4>
+                  <p class="relative text-jd-charcoal/80 text-[12.5px] leading-relaxed">Authored and published a practical lab manual on Amazon Kindle, covering modern DevOps tools, workflows, and development practices.</p>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div class="bg-jd-mint/40 rounded-[26px] p-5 shadow-bento flex flex-col justify-between border border-jd-mint">
-            <div>
-              <div class="w-8 h-8 rounded-lg bg-white text-jd-charcoal flex items-center justify-center mb-3 shadow-xs">
-                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
-              </div>
-              <div class="text-[9px] font-mono uppercase text-emerald-800 font-bold mb-0.5">
-                EVALUATION SCORE
-              </div>
-              <h3 class="font-display font-extrabold text-2xl text-jd-ink mb-1 tracking-tight">
-                8.8 CGPA
-              </h3>
-              <p class="text-jd-charcoal/75 text-[12px] leading-relaxed">
-                Consistent semester performance across academic examinations, computer programming coursework, and practical laboratory assessments.
-              </p>
-            </div>
-            <div class="mt-4 pt-3 border-t border-emerald-200 text-[9px] font-mono text-emerald-900 font-bold">
-              10.0 Evaluation Scale
-            </div>
-          </div>
-
-          <div class="bg-white rounded-[26px] p-5 shadow-bento flex flex-col justify-between border border-jd-charcoal/5">
-            <div>
-              <div class="w-8 h-8 rounded-lg bg-jd-coral/20 text-[#D4533C] flex items-center justify-center mb-3">
-                <i data-lucide="layers" class="w-4 h-4"></i>
-              </div>
-              <div class="text-[9px] font-mono uppercase text-[#D4533C] font-bold mb-0.5">
-                TECHNICAL SCOPE
-              </div>
-              <h3 class="font-display font-extrabold text-base text-jd-ink mb-1.5 tracking-tight">
-                6 Core Practical Tools
-              </h3>
-              <p class="text-jd-charcoal/70 text-[12px] leading-relaxed">
-                Academic and laboratory mastery spanning HTML, CSS, JavaScript, Python scripts, MySQL relational queries, and Power BI dashboards.
-              </p>
-            </div>
-            <div class="mt-4 pt-3 border-t border-gray-100 text-[9px] font-mono text-gray-500">
-              Validated Core Stack
-            </div>
-          </div>
         </div>
       </div>
     </section>
 
     <!-- PAGE 6 — CONTACT -->
-    <section id="contact" class="window-page bg-jd-charcoal text-white pt-16">
-      <div class="bento-shell relative z-10 w-full">
-        <div class="mb-6 max-w-lg">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-jd-yellow text-[9px] font-mono uppercase tracking-wider font-bold mb-2">
-            <span class="w-2 h-2 rounded-full bg-jd-yellow"></span>
-            <span>DISPATCH // 06</span>
-          </div>
+    <section id="contact" class="window-page" aria-label="Contact">
+      <div class="page-scroll">
+        <div class="page-inner bento-shell">
 
-          <h2 class="font-display font-extrabold text-2xl sm:text-4xl tracking-tight uppercase leading-tight mb-2">
-            LET'S BUILD <br />
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-jd-yellow via-jd-coral to-jd-mint">
-              SOMETHING.
-            </span>
-          </h2>
-          
-          <p class="text-white/70 text-[12.5px] font-medium leading-relaxed">
-            Available for software engineering roles, academic discussions, and collaborative web & data projects.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <a 
-            id="contact-gh-link" 
-            href="https://github.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="bg-white/5 hover:bg-white/10 border border-white/10 rounded-[22px] p-5 transition-all duration-300 group flex flex-col justify-between"
-          >
-            <div class="flex justify-between items-center mb-4">
-              <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white group-hover:bg-jd-yellow group-hover:text-jd-charcoal transition-colors">
-                <i data-lucide="github" class="w-4 h-4"></i>
-              </div>
-              <i data-lucide="arrow-up-right" class="w-4 h-4 text-white/50 group-hover:text-white transition-colors"></i>
-            </div>
+          <header class="page-head reveal" style="--d:0">
             <div>
-              <div class="text-[9px] font-mono text-white/50 uppercase">SOURCE CODE</div>
-              <div class="font-display font-extrabold text-lg text-white group-hover:text-jd-yellow transition-colors tracking-tight">
-                GitHub ↗
-              </div>
-              <div class="text-[10px] font-mono text-white/40 truncate mt-0.5" id="gh-label-text">github.com</div>
+              <h2 class="page-title"><span>Contact</span><span class="page-title-mark accent-orange">⌝</span></h2>
+              <p class="page-sub">Open to software roles, academic discussions and collaborative projects.</p>
             </div>
-          </a>
+            <div class="page-tag">Let's talk</div>
+          </header>
 
-          <a 
-            id="contact-li-link" 
-            href="https://linkedin.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="bg-white/5 hover:bg-white/10 border border-white/10 rounded-[22px] p-5 transition-all duration-300 group flex flex-col justify-between"
-          >
-            <div class="flex justify-between items-center mb-4">
-              <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white group-hover:bg-jd-periwinkle group-hover:text-white transition-colors">
-                <i data-lucide="linkedin" class="w-4 h-4"></i>
-              </div>
-              <i data-lucide="arrow-up-right" class="w-4 h-4 text-white/50 group-hover:text-white transition-colors"></i>
-            </div>
-            <div>
-              <div class="text-[9px] font-mono text-white/50 uppercase">PROFESSIONAL NETWORK</div>
-              <div class="font-display font-extrabold text-lg text-white group-hover:text-jd-periwinkle transition-colors tracking-tight">
-                LinkedIn ↗
-              </div>
-              <div class="text-[10px] font-mono text-white/40 truncate mt-0.5" id="li-label-text">linkedin.com</div>
-            </div>
-          </a>
+          <!-- MAIN CONTACT PANEL -->
+          <div class="reveal relative overflow-hidden rounded-[32px] border border-white/90 bg-gradient-to-br from-white/80 via-[#FFF0C6]/75 to-[#FFD5B8]/75 backdrop-blur-xl p-5 sm:p-7 lg:p-8 shadow-[0_32px_64px_-28px_rgba(154,52,18,0.40),0_2px_6px_rgba(21,22,25,0.05),inset_0_1px_0_rgba(255,255,255,0.95)]" style="--d:1">
+            <div class="pointer-events-none absolute -top-24 -right-16 w-72 h-72 rounded-full bg-jd-yellow/45 blur-3xl"></div>
+            <div class="pointer-events-none absolute -bottom-28 -left-16 w-64 h-64 rounded-full bg-jd-coral/30 blur-3xl"></div>
 
-          <div class="bg-gradient-to-br from-jd-periwinkle to-hero-mid rounded-[22px] p-5 shadow-bento flex flex-col justify-between">
-            <div class="flex justify-between items-center mb-4">
-              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
-                <i data-lucide="mail" class="w-4 h-4"></i>
-              </div>
-              <span class="text-[8px] font-mono bg-black/25 px-2.5 py-0.5 rounded-full uppercase font-bold">Direct</span>
+            <div class="relative mb-5 max-w-xl">
+              <h3 class="font-display font-extrabold text-2xl sm:text-3xl tracking-tight uppercase leading-tight text-jd-ink">
+                LET'S BUILD
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-hero-top via-jd-coral to-jd-yellowDark">SOMETHING.</span>
+              </h3>
             </div>
-            <div>
-              <div class="text-[9px] font-mono text-white/75 uppercase">DIRECT CONTACT</div>
-              <div class="font-display font-bold text-[12px] text-white break-all mb-2.5" id="contact-email-disp">
-                kkshivanandha@gmail.com
-              </div>
-              <button 
-                onclick="copyEmailToClipboard()" 
-                class="w-full py-2 px-3 rounded-lg bg-white text-jd-charcoal font-bold text-[11px] uppercase tracking-wider hover:bg-jd-yellow transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+
+            <div class="relative grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+              <a
+                id="contact-gh-link"
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="lift bg-white border border-white shadow-bento rounded-[22px] p-5 group flex flex-col justify-between gap-4"
               >
-                <i data-lucide="copy" class="w-3 h-3"></i>
-                <span>Copy Email</span>
-              </button>
+                <div class="flex justify-between items-center">
+                  <div class="w-9 h-9 rounded-lg bg-jd-canvas flex items-center justify-center text-jd-charcoal group-hover:bg-jd-yellow transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                  </div>
+                  <i data-lucide="arrow-up-right" class="w-4 h-4 text-jd-charcoal/40 group-hover:text-jd-ink transition-colors"></i>
+                </div>
+                <div>
+                  <div class="text-[10px] font-mono text-jd-charcoal/55 uppercase">SOURCE CODE</div>
+                  <div class="font-display font-extrabold text-xl text-jd-ink group-hover:text-hero-top transition-colors tracking-tight">GitHub ↗</div>
+                  <div class="text-[11px] font-mono text-jd-charcoal/50 truncate mt-0.5" id="gh-label-text">github.com</div>
+                </div>
+              </a>
+
+              <a
+                id="contact-li-link"
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="lift bg-white border border-white shadow-bento rounded-[22px] p-5 group flex flex-col justify-between gap-4"
+              >
+                <div class="flex justify-between items-center">
+                  <div class="w-9 h-9 rounded-lg bg-jd-canvas flex items-center justify-center text-jd-charcoal group-hover:bg-jd-periwinkle group-hover:text-white transition-colors">
+                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                  </div>
+                  <i data-lucide="arrow-up-right" class="w-4 h-4 text-jd-charcoal/40 group-hover:text-jd-ink transition-colors"></i>
+                </div>
+                <div>
+                  <div class="text-[10px] font-mono text-jd-charcoal/55 uppercase">PROFESSIONAL NETWORK</div>
+                  <div class="font-display font-extrabold text-xl text-jd-ink group-hover:text-jd-periwinkle transition-colors tracking-tight">LinkedIn ↗</div>
+                  <div class="text-[11px] font-mono text-jd-charcoal/50 truncate mt-0.5" id="li-label-text">linkedin.com</div>
+                </div>
+              </a>
+
+              <div class="lift bg-gradient-to-br from-white to-[#FFE9B5] border border-white shadow-bento rounded-[22px] p-5 flex flex-col justify-between gap-4">
+                <div class="flex justify-between items-center">
+                  <div class="w-9 h-9 rounded-lg bg-jd-yellow flex items-center justify-center text-jd-charcoal">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                  </div>
+                  <span class="text-[9px] font-mono bg-jd-yellow/45 text-jd-yellowDark px-2.5 py-1 rounded-full uppercase font-bold">Direct</span>
+                </div>
+                <div>
+                  <div class="text-[10px] font-mono text-jd-charcoal/55 uppercase">DIRECT CONTACT</div>
+                  <div class="font-display font-bold text-[13px] text-jd-ink break-all mb-3" id="contact-email-disp">
+                    kkshivanandha@gmail.com
+                  </div>
+                  <button
+                    onclick="copyEmailToClipboard()"
+                    class="w-full py-2.5 px-3 rounded-lg bg-jd-charcoal text-white font-bold text-[11px] uppercase tracking-wider hover:bg-jd-yellow hover:text-jd-charcoal transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                  >
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy Email</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="mt-8 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[10px] font-mono text-white/50 gap-2">
-          <div>SHIVANANDHA K K • B.Sc. COMPUTER SCIENCE</div>
-          <a href="javascript:void(0)" onclick="returnToLanding()" class="hover:text-white transition-colors text-jd-yellow font-bold flex items-center gap-1">
-            <span>BACK TO TOP</span>
-            <i data-lucide="arrow-up" class="w-3 h-3"></i>
-          </a>
+          <div class="reveal mt-5 flex justify-center" style="--d:2">
+            <a href="javascript:void(0)" onclick="returnToLanding()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/70 border border-white shadow-bento text-[11px] font-mono font-bold text-jd-charcoal hover:bg-jd-yellow transition-colors">
+              <span>BACK TO TOP</span>
+              <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
         </div>
       </div>
     </section>
 
   </main>
 
+  <!-- PAGE NAVIGATION (prev / dots / next) -->
+  <div id="page-nav" role="navigation" aria-label="Page navigation">
+    <button type="button" class="pn-btn" id="pn-prev" aria-label="Previous page"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+    <div id="pn-dots"></div>
+    <span id="pn-count">01/05</span>
+    <button type="button" class="pn-btn" id="pn-next" aria-label="Next page"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+  </div>
+
   <!-- Clipboard Toast -->
-  <div id="copy-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 pointer-events-none transition-all duration-300">
+  <div id="copy-toast" class="fixed bottom-20 right-6 z-50 transform translate-y-16 opacity-0 pointer-events-none transition-all duration-300">
     <div class="px-5 py-3 rounded-2xl bg-jd-ink text-white font-mono text-xs font-bold shadow-2xl flex items-center gap-2.5 border border-white/20">
       <i data-lucide="check" class="w-4 h-4 text-jd-mint"></i>
       <span>Copied email address!</span>
@@ -1004,12 +1186,26 @@
   <script>
     lucide.createIcons();
 
+    // ---------- STATE ----------
+    const PAGES = [
+      { id: "about", label: "About" },
+      { id: "skills", label: "Techs & Tools" },
+      { id: "projects", label: "Projects" },
+      { id: "achievements", label: "Achievements" },
+      { id: "contact", label: "Contact" }
+    ];
+    const TRANSITION_MS = 1000;
+
+    let pageEls = [];
+    let currentIndex = 0;          // About is the first page after Home
     let activeSkillIndex = 0;
-    let isLandingFixed = true;
+    let isLandingFixed = true;     // hero is covering the portfolio
+    let onHome = true;             // UI state (flips immediately, isLandingFixed flips after the animation)
     let isTransitioning = false;
 
     document.addEventListener("DOMContentLoaded", () => {
       const cfg = window.PORTFOLIO_CONFIG;
+      pageEls = PAGES.map(p => document.getElementById(p.id));
 
       const gh = document.getElementById("contact-gh-link");
       const li = document.getElementById("contact-li-link");
@@ -1034,67 +1230,118 @@
       initConstellation();
       initHeroParallax();
       initMobileNav();
-      initNavbarScroll();
-      initFixedLandingCamera();
+      buildPageNav();
+      applyPositions();
+      pageEls[0].classList.add("revealed");
+      updateUI();
+      initControlledNavigation();
     });
 
-    // 3D CAMERA DIVE ZOOM MECHANICS
-    function initFixedLandingCamera() {
-      window.addEventListener("wheel", (e) => {
-        if (isLandingFixed && e.deltaY > 15 && !isTransitioning) {
-          triggerCameraZoom();
-        }
-      }, { passive: false });
-
-      let touchStartY = 0;
-      window.addEventListener("touchstart", (e) => {
-        touchStartY = e.touches[0].clientY;
-      }, { passive: true });
-
-      window.addEventListener("touchend", (e) => {
-        if (!isLandingFixed || isTransitioning) return;
-        const touchEndY = e.changedTouches[0].clientY;
-        if (touchStartY - touchEndY > 45) {
-          triggerCameraZoom();
-        }
-      }, { passive: true });
+    // ---------- PAGE STACK ----------
+    function applyPositions() {
+      pageEls.forEach((el, i) => {
+        el.classList.toggle("is-active", i === currentIndex);
+        el.classList.toggle("is-before", i < currentIndex);
+        el.classList.toggle("is-after", i > currentIndex);
+      });
     }
 
+    function replayReveal(page) {
+      if (!page) return;
+      page.classList.add("reveal-reset");
+      page.classList.remove("revealed");
+      void page.offsetWidth;
+      page.classList.remove("reveal-reset");
+      page.classList.add("revealed");
+    }
+
+    function goToIndex(next, opts = {}) {
+      const instant = !!opts.instant;
+      if (next < 0 || next >= PAGES.length || next === currentIndex) return;
+
+      const prev = currentIndex;
+
+      // Only the leaving page and the arriving page animate; any page in between snaps silently.
+      pageEls.forEach((el, i) => {
+        if (instant || (i !== prev && i !== next)) el.classList.add("no-anim");
+      });
+
+      currentIndex = next;
+      applyPositions();
+      void document.body.offsetWidth;
+      pageEls.forEach(el => el.classList.remove("no-anim"));
+
+      replayReveal(pageEls[next]);
+      const scroller = pageEls[next].querySelector(".page-scroll");
+      if (scroller) scroller.scrollTop = 0;
+
+      if (!instant) {
+        isTransitioning = true;
+        setTimeout(() => { isTransitioning = false; }, TRANSITION_MS);
+      }
+      updateUI();
+    }
+
+    // One page at a time: +1 = next, -1 = previous
+    function step(dir) {
+      if (isLandingFixed || isTransitioning) return;
+      const next = currentIndex + dir;
+      if (next < 0) { returnToLanding(); return; }
+      if (next >= PAGES.length) return;
+      goToIndex(next);
+    }
+
+    function navigateToSection(id) {
+      const idx = PAGES.findIndex(p => p.id === id);
+      if (idx < 0 || isTransitioning) return;
+
+      if (isLandingFixed) {
+        // jump straight to the chosen page behind the hero, then run the existing Home transition
+        if (idx !== currentIndex) goToIndex(idx, { instant: true });
+        triggerCameraZoom();
+        return;
+      }
+      goToIndex(idx);
+    }
+
+    // ---------- HOME TRANSITION (visual unchanged) ----------
     function triggerCameraZoom(callback) {
       if (isTransitioning || !isLandingFixed) {
         if (callback) callback();
         return;
       }
       isTransitioning = true;
+      onHome = false;
       const hero = document.getElementById("hero");
 
+      replayReveal(pageEls[currentIndex]);
       hero.classList.add("dive-in");
       document.body.classList.remove("hero-locked");
 
       updateNavbarTheme(false);
+      updateUI();
 
       setTimeout(() => {
         isLandingFixed = false;
         isTransitioning = false;
-        if (callback) callback();
-      }, 1150);
+        if (callback) callback();   // Home lands directly on About and stops — no scrolling
+      }, 1050);
     }
 
     function returnToLanding() {
-      if (isTransitioning) return;
+      if (isTransitioning || isLandingFixed) return;
       isTransitioning = true;
-      
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      onHome = true;
+
       document.body.classList.add("hero-locked");
-      
-      const hero = document.getElementById("hero");
-      hero.classList.remove("dive-in");
-      
+      document.getElementById("hero").classList.remove("dive-in");
       updateNavbarTheme(true);
+      updateUI();
 
       setTimeout(() => {
         isLandingFixed = true;
         isTransitioning = false;
+        goToIndex(0, { instant: true });   // next visit always starts at About
       }, 1150);
     }
 
@@ -1104,40 +1351,164 @@
       const links = document.querySelector(".nav-links");
 
       if (isHero) {
-        nav.classList.remove("bg-[#F4F3EE]/90", "backdrop-blur-md", "border-b", "border-black/5", "shadow-xs");
-        if (logo) {
-          logo.classList.add("text-white");
-          logo.classList.remove("text-jd-ink");
-        }
-        if (links) {
-          links.classList.add("text-white/85");
-          links.classList.remove("text-jd-charcoal");
-        }
+        nav.classList.remove("bg-white/70", "backdrop-blur-md", "border-b", "border-black/5", "shadow-xs");
+        if (logo) { logo.classList.add("text-white"); logo.classList.remove("text-jd-ink"); }
+        if (links) { links.classList.add("text-white/85"); links.classList.remove("text-jd-charcoal"); }
       } else {
-        nav.classList.add("bg-[#F4F3EE]/90", "backdrop-blur-md", "border-b", "border-black/5", "shadow-xs");
-        if (logo) {
-          logo.classList.remove("text-white");
-          logo.classList.add("text-jd-ink");
-        }
-        if (links) {
-          links.classList.remove("text-white/85");
-          links.classList.add("text-jd-charcoal");
-        }
+        nav.classList.add("bg-white/70", "backdrop-blur-md", "border-b", "border-black/5", "shadow-xs");
+        if (logo) { logo.classList.remove("text-white"); logo.classList.add("text-jd-ink"); }
+        if (links) { links.classList.remove("text-white/85"); links.classList.add("text-jd-charcoal"); }
       }
     }
 
-    function navigateToSection(id) {
-      if (isLandingFixed) {
-        triggerCameraZoom(() => {
-          const target = document.getElementById(id);
-          if (target) target.scrollIntoView({ behavior: 'smooth' });
-        });
-      } else {
-        const target = document.getElementById(id);
-        if (target) target.scrollIntoView({ behavior: 'smooth' });
-      }
+    // ---------- PAGE NAV PILL + ACTIVE STATES ----------
+    function buildPageNav() {
+      const dotsWrap = document.getElementById("pn-dots");
+      dotsWrap.innerHTML = "";
+      PAGES.forEach((p, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "pn-dot";
+        b.setAttribute("aria-label", `Go to ${p.label}`);
+        b.title = p.label;
+        b.addEventListener("click", () => navigateToSection(p.id));
+        dotsWrap.appendChild(b);
+      });
+
+      document.getElementById("pn-prev").addEventListener("click", () => step(-1));
+      document.getElementById("pn-next").addEventListener("click", () => step(1));
     }
 
+    function updateUI() {
+      const activeKey = onHome ? "home" : PAGES[currentIndex].id;
+      document.querySelectorAll("[data-nav]").forEach(a => {
+        a.classList.toggle("active", a.dataset.nav === activeKey);
+      });
+
+      document.querySelectorAll(".pn-dot").forEach((d, i) => d.classList.toggle("is-on", i === currentIndex));
+      const count = document.getElementById("pn-count");
+      if (count) count.textContent = `${String(currentIndex + 1).padStart(2, "0")}/${String(PAGES.length).padStart(2, "0")}`;
+      const next = document.getElementById("pn-next");
+      if (next) next.disabled = currentIndex >= PAGES.length - 1;
+    }
+
+    // ---------- CONTROLLED INPUT: WHEEL, TOUCH, KEYBOARD ----------
+    function activeScroller() {
+      return pageEls[currentIndex] ? pageEls[currentIndex].querySelector(".page-scroll") : null;
+    }
+    function scrollerState() {
+      const sc = activeScroller();
+      if (!sc) return { scrollable: false, atTop: true, atBottom: true, top: 0 };
+      const max = sc.scrollHeight - sc.clientHeight;
+      return {
+        scrollable: max > 2,
+        atTop: sc.scrollTop <= 2,
+        atBottom: sc.scrollTop >= max - 2,
+        top: sc.scrollTop
+      };
+    }
+    // true when this page still has hidden content in that direction (so we scroll it instead of changing page)
+    function innerCanScroll(dir) {
+      const s = scrollerState();
+      if (!s.scrollable) return false;
+      return dir > 0 ? !s.atBottom : !s.atTop;
+    }
+
+    function initControlledNavigation() {
+      // --- wheel / trackpad: one gesture = one page ---
+      let lastWheelAt = 0;
+      let gestureUsed = false;
+      let gestureScrolled = false;
+
+      window.addEventListener("wheel", (e) => {
+        if (e.ctrlKey) return;
+        e.preventDefault();
+
+        const now = performance.now();
+        const newGesture = now - lastWheelAt > 180;
+        lastWheelAt = now;
+        if (newGesture) { gestureUsed = false; gestureScrolled = false; }
+
+        const dir = e.deltaY > 0 ? 1 : -1;
+
+        // Home: scroll down enters the portfolio (existing behaviour)
+        if (isLandingFixed) {
+          if (e.deltaY > 15 && !isTransitioning && !gestureUsed) {
+            gestureUsed = true;
+            triggerCameraZoom();
+          }
+          return;
+        }
+
+        if (isTransitioning || gestureUsed) return;
+
+        // content taller than the window: let it scroll first, never jump pages mid-scroll
+        if (innerCanScroll(dir)) {
+          gestureScrolled = true;
+          const sc = activeScroller();
+          if (sc) sc.scrollTop += e.deltaY;
+          return;
+        }
+        if (gestureScrolled) return;
+        if (Math.abs(e.deltaY) < 15) return;
+
+        gestureUsed = true;
+        step(dir);
+      }, { passive: false });
+
+      // --- touch swipe ---
+      let touchStartY = 0, touchStartX = 0;
+      let startState = null;
+
+      window.addEventListener("touchstart", (e) => {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+        startState = scrollerState();
+      }, { passive: true });
+
+      window.addEventListener("touchend", (e) => {
+        const dy = touchStartY - e.changedTouches[0].clientY;
+        const dx = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(dy) < 50 || Math.abs(dy) < Math.abs(dx)) return;   // ignore short or sideways swipes
+        const dir = dy > 0 ? 1 : -1;
+
+        if (isLandingFixed) {
+          if (dir > 0 && !isTransitioning) triggerCameraZoom();
+          return;
+        }
+        if (isTransitioning) return;
+
+        // swipe only changes page when the page content was already at that edge
+        const now = scrollerState();
+        if (startState && startState.scrollable) {
+          const movedInside = Math.abs(now.top - startState.top) > 2;
+          if (movedInside) return;
+          if (dir > 0 && !startState.atBottom) return;
+          if (dir < 0 && !startState.atTop) return;
+        }
+        step(dir);
+      }, { passive: true });
+
+      // --- keyboard ---
+      window.addEventListener("keydown", (e) => {
+        const k = e.key;
+        const down = k === "ArrowDown" || k === "PageDown";
+        const up = k === "ArrowUp" || k === "PageUp";
+        if (!down && !up) return;
+        e.preventDefault();
+
+        if (isLandingFixed) { if (down) triggerCameraZoom(); return; }
+        const dir = down ? 1 : -1;
+        if (innerCanScroll(dir)) {
+          const sc = activeScroller();
+          if (sc) sc.scrollBy({ top: dir * 120, behavior: "smooth" });
+          return;
+        }
+        step(dir);
+      });
+    }
+
+    // ---------- MOBILE MENU ----------
     function closeMobileMenu() {
       const drawer = document.getElementById("mobile-menu");
       if (drawer) {
@@ -1146,6 +1517,28 @@
       }
     }
 
+    function initMobileNav() {
+      const toggle = document.getElementById("menu-toggle");
+      const drawer = document.getElementById("mobile-menu");
+      if (!toggle || !drawer) return;
+
+      let open = false;
+      const setDrawer = (state) => {
+        open = state;
+        if (open) {
+          drawer.classList.remove("opacity-0", "pointer-events-none");
+          drawer.classList.add("opacity-100", "pointer-events-auto");
+        } else {
+          drawer.classList.add("opacity-0", "pointer-events-none");
+          drawer.classList.remove("opacity-100", "pointer-events-auto");
+        }
+      };
+
+      toggle.addEventListener("click", () => setDrawer(!open));
+      drawer.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { open = false; }));
+    }
+
+    // ---------- SKILLS ----------
     function buildQuickSelectPills() {
       const bar = document.getElementById("skills-pill-bar");
       if (!bar) return;
@@ -1154,9 +1547,9 @@
       window.PORTFOLIO_CONFIG.skillsData.forEach((skill, index) => {
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = `quick-pill text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200 cursor-pointer border ${
-          index === 0 
-            ? "bg-jd-periwinkle text-white border-jd-periwinkle shadow-xs" 
+        btn.className = `quick-pill text-[10.5px] font-mono font-bold uppercase tracking-wider px-4 py-1.5 min-w-[96px] text-center rounded-full transition-all duration-200 cursor-pointer border hover:-translate-y-0.5 ${
+          index === 0
+            ? "bg-jd-periwinkle text-white border-jd-periwinkle shadow-xs"
             : "bg-white text-jd-charcoal border-gray-200 hover:border-jd-periwinkle"
         }`;
         btn.dataset.skillId = skill.id;
@@ -1178,18 +1571,16 @@
       document.getElementById("inspect-title").textContent = skill.name;
       document.getElementById("inspect-level").textContent = skill.levelText;
       document.getElementById("inspect-percentage").textContent = `${skill.progress}%`;
-      
+
       const bar = document.getElementById("inspect-bar");
       bar.style.width = `${skill.progress}%`;
       bar.style.backgroundColor = skill.accent;
 
       const iconWrap = document.getElementById("inspect-icon-wrap");
       iconWrap.style.backgroundColor = skill.accent;
+      iconWrap.innerHTML = `<i data-lucide="${skill.icon}" class="w-5 h-5"></i>`;
 
       document.getElementById("inspect-desc").textContent = skill.description;
-      
-      const iconEl = document.getElementById("inspect-icon-el");
-      iconEl.setAttribute("data-lucide", skill.icon);
       lucide.createIcons();
 
       document.querySelectorAll(".skill-node").forEach(node => {
@@ -1201,11 +1592,10 @@
       });
 
       document.querySelectorAll(".quick-pill").forEach(pill => {
-        if (pill.dataset.skillId === skill.id) {
-          pill.className = "quick-pill text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200 cursor-pointer border bg-jd-periwinkle text-white border-jd-periwinkle shadow-xs";
-        } else {
-          pill.className = "quick-pill text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200 cursor-pointer border bg-white text-jd-charcoal border-gray-200 hover:border-jd-periwinkle";
-        }
+        const base = "quick-pill text-[10.5px] font-mono font-bold uppercase tracking-wider px-4 py-1.5 min-w-[96px] text-center rounded-full transition-all duration-200 cursor-pointer border hover:-translate-y-0.5";
+        pill.className = pill.dataset.skillId === skill.id
+          ? `${base} bg-jd-periwinkle text-white border-jd-periwinkle shadow-xs`
+          : `${base} bg-white text-jd-charcoal border-gray-200 hover:border-jd-periwinkle`;
       });
     }
 
@@ -1226,16 +1616,6 @@
       let W = arena.clientWidth;
       let H = arena.clientHeight;
 
-      function resize() {
-        W = arena.clientWidth;
-        H = arena.clientHeight;
-        canvas.width = W * window.devicePixelRatio;
-        canvas.height = H * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-      }
-      resize();
-      window.addEventListener("resize", resize);
-
       const presetRatios = [
         { rx: 0.22, ry: 0.26 },
         { rx: 0.78, ry: 0.25 },
@@ -1245,13 +1625,14 @@
         { rx: 0.50, ry: 0.82 }
       ];
 
+      const narrowRatios = [
+        { rx: 0.27, ry: 0.20 }, { rx: 0.73, ry: 0.20 },
+        { rx: 0.27, ry: 0.50 }, { rx: 0.73, ry: 0.50 },
+        { rx: 0.27, ry: 0.80 }, { rx: 0.73, ry: 0.80 }
+      ];
+
       const nodes = nodesElements.map((el, i) => {
         const ratio = presetRatios[i] || { rx: 0.5, ry: 0.5 };
-        const originX = W * ratio.rx;
-        const originY = H * ratio.ry;
-        const w = el.offsetWidth || 95;
-        const h = el.offsetHeight || 38;
-
         const skillId = el.dataset.skillId;
         const skillData = window.PORTFOLIO_CONFIG.skillsData.find(s => s.id === skillId);
 
@@ -1262,22 +1643,47 @@
             inspectSkill(skillData);
           }
         };
-
         el.addEventListener("pointerdown", trigger);
         el.addEventListener("click", trigger);
 
         return {
           el,
-          originX,
-          originY,
-          x: originX,
-          y: originY,
+          idx: i,
+          rx: ratio.rx,
+          ry: ratio.ry,
+          originX: 0, originY: 0, x: 0, y: 0,
           vx: (Math.random() - 0.5) * 0.25,
           vy: (Math.random() - 0.5) * 0.25,
-          w,
-          h
+          w: el.offsetWidth || 95,
+          h: el.offsetHeight || 38
         };
       });
+
+      // keeps nodes in the right place when the card changes height or the window resizes
+      function measure(first) {
+        W = arena.clientWidth;
+        H = arena.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        nodes.forEach(n => {
+          n.w = n.el.offsetWidth || 95;
+          n.h = n.el.offsetHeight || 38;
+          const r = (W < 520 ? narrowRatios : presetRatios)[n.idx] || { rx: 0.5, ry: 0.5 };
+          n.rx = r.rx; n.ry = r.ry;
+          n.originX = W * n.rx;
+          n.originY = H * n.ry;
+          if (first) { n.x = n.originX; n.y = n.originY; }
+        });
+      }
+      measure(true);
+
+      if (window.ResizeObserver) {
+        new ResizeObserver(() => measure(false)).observe(arena);
+      } else {
+        window.addEventListener("resize", () => measure(false));
+      }
 
       let pointer = { x: -999, y: -999, active: false };
 
@@ -1287,10 +1693,7 @@
         pointer.y = e.clientY - rect.top;
         pointer.active = true;
       });
-
-      arena.addEventListener("pointerleave", () => {
-        pointer.active = false;
-      });
+      arena.addEventListener("pointerleave", () => { pointer.active = false; });
 
       function render() {
         ctx.clearRect(0, 0, W, H);
@@ -1332,18 +1735,15 @@
           });
         }
 
-        const padX = 50;
-        const padY = 32;
-
         nodes.forEach(n => {
+          const padX = n.w / 2 + 8;
+          const padY = n.h / 2 + 8;
+
           n.x += n.vx;
           n.y += n.vy;
 
-          const springX = (n.originX - n.x) * 0.008;
-          const springY = (n.originY - n.y) * 0.008;
-          n.vx += springX;
-          n.vy += springY;
-
+          n.vx += (n.originX - n.x) * 0.008;
+          n.vy += (n.originY - n.y) * 0.008;
           n.vx *= 0.98;
           n.vy *= 0.98;
 
@@ -1358,21 +1758,11 @@
             }
           }
 
-          if (n.x < padX) {
-            n.x = padX;
-            n.vx = Math.abs(n.vx) * 0.4;
-          } else if (n.x > W - padX) {
-            n.x = W - padX;
-            n.vx = -Math.abs(n.vx) * 0.4;
-          }
+          if (n.x < padX) { n.x = padX; n.vx = Math.abs(n.vx) * 0.4; }
+          else if (n.x > W - padX) { n.x = W - padX; n.vx = -Math.abs(n.vx) * 0.4; }
 
-          if (n.y < padY) {
-            n.y = padY;
-            n.vy = Math.abs(n.vy) * 0.4;
-          } else if (n.y > H - padY) {
-            n.y = H - padY;
-            n.vy = -Math.abs(n.vy) * 0.4;
-          }
+          if (n.y < padY) { n.y = padY; n.vy = Math.abs(n.vy) * 0.4; }
+          else if (n.y > H - padY) { n.y = H - padY; n.vy = -Math.abs(n.vy) * 0.4; }
 
           n.el.style.left = `${n.x - n.w / 2}px`;
           n.el.style.top = `${n.y - n.h / 2}px`;
@@ -1384,6 +1774,7 @@
       render();
     }
 
+    // ---------- HERO PARALLAX (UNCHANGED) ----------
     function initHeroParallax() {
       const hero = document.getElementById("hero");
       const portrait = document.getElementById("hero-portrait-container");
@@ -1397,39 +1788,39 @@
         tx = (e.clientX - r.left) / r.width - 0.5;
         ty = (e.clientY - r.top) / r.height - 0.5;
       });
-
-      hero.addEventListener("mouseleave", () => {
-        tx = 0;
-        ty = 0;
-      });
+      hero.addEventListener("mouseleave", () => { tx = 0; ty = 0; });
 
       function anim() {
         mx += (tx - mx) * 0.08;
         my += (ty - my) * 0.08;
-
         portrait.style.transform = `translate3d(${mx * 10}px, ${my * 6}px, 0)`;
         ghost.style.transform = `translate3d(${-mx * 15}px, ${-my * 8}px, 0)`;
-
         requestAnimationFrame(anim);
       }
       anim();
     }
 
+    // ---------- EMAIL COPY ----------
     function copyEmailToClipboard() {
       const email = window.PORTFOLIO_CONFIG.email;
-      const el = document.createElement("textarea");
-      el.value = email;
-      el.style.position = "fixed";
-      el.style.left = "-9999px";
-      document.body.appendChild(el);
-      el.select();
-      try {
-        document.execCommand("copy");
-        showToast();
-      } catch (err) {
-        console.error("Copy failed", err);
+      const done = () => showToast();
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(email).then(done).catch(fallbackCopy);
+      } else {
+        fallbackCopy();
       }
-      document.body.removeChild(el);
+
+      function fallbackCopy() {
+        const el = document.createElement("textarea");
+        el.value = email;
+        el.style.position = "fixed";
+        el.style.left = "-9999px";
+        document.body.appendChild(el);
+        el.select();
+        try { document.execCommand("copy"); done(); } catch (err) { console.error("Copy failed", err); }
+        document.body.removeChild(el);
+      }
     }
 
     function showToast() {
@@ -1441,34 +1832,6 @@
         toast.classList.remove("translate-y-0", "opacity-100");
         toast.classList.add("translate-y-16", "opacity-0", "pointer-events-none");
       }, 2200);
-    }
-
-    function initMobileNav() {
-      const toggle = document.getElementById("menu-toggle");
-      const drawer = document.getElementById("mobile-menu");
-      if (!toggle || !drawer) return;
-
-      let open = false;
-      const setDrawer = (state) => {
-        open = state;
-        if (open) {
-          drawer.classList.remove("opacity-0", "pointer-events-none");
-          drawer.classList.add("opacity-100", "pointer-events-auto");
-        } else {
-          drawer.classList.add("opacity-0", "pointer-events-none");
-          drawer.classList.remove("opacity-100", "pointer-events-auto");
-        }
-      };
-
-      toggle.addEventListener("click", () => setDrawer(!open));
-    }
-
-    function initNavbarScroll() {
-      window.addEventListener("scroll", () => {
-        if (!isLandingFixed) {
-          updateNavbarTheme(false);
-        }
-      }, { passive: true });
     }
   </script>
 

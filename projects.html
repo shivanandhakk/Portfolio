@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Selected Work — SHIVANANDHA K K</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            heading: ['Sora', '"Plus Jakarta Sans"', 'sans-serif'],
+            body: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            hero: {
+              top: '#F97316',
+              mid: '#9A3412',
+              deep: '#8C2410',
+            },
+            jd: {
+              periwinkle: '#747CD4',
+              mint: '#B4E5D7',
+              mintDark: '#2D8170',
+              yellow: '#FFBE53',
+              yellowDark: '#8A5D07',
+              charcoal: '#38393D',
+              coral: '#FA8268',
+              canvas: '#F4F3EE',
+              cardBg: '#FFFFFF',
+              lavenderBg: '#F3F2F8',
+              ink: '#151619'
+            }
+          },
+          boxShadow: {
+            'bento': '0 10px 30px -4px rgba(21, 22, 25, 0.05), 0 2px 8px -2px rgba(21, 22, 25, 0.03)',
+            'bento-hover': '0 20px 35px -6px rgba(21, 22, 25, 0.09)',
+            'node': '0 6px 18px -2px rgba(116, 124, 212, 0.2)',
+            'node-active': '0 0 0 3px #747CD4, 0 10px 24px -4px rgba(116, 124, 212, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after {
+      font-stretch: 100% !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    html, body {
+      background-color: #F4F3EE;
+      color: #151619;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    ::-webkit-scrollbar {
+      display: none !important;
+      width: 0px !important;
+      height: 0px !important;
+    }
+
+    .window-page {
+      height: 100vh;
+      height: 100svh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .bento-shell {
+      max-width: 1040px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+    @media (min-width: 768px) {
+      .bento-shell {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="selection:bg-jd-yellow selection:text-jd-charcoal">
+
+  <!-- Top Minimal Floating Header -->
+  <header class="fixed top-0 left-0 w-full z-50 px-4 sm:px-8 py-3 transition-all duration-300 pointer-events-auto bg-[#F4F3EE]/90 backdrop-blur-md border-b border-black/5 shadow-xs" id="main-nav">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 group">
+        <span class="nav-logo text-xs font-mono font-bold tracking-widest text-jd-ink transition-colors duration-300">SHIVANANDHA</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-7 text-[14px] font-semibold text-jd-charcoal nav-links transition-colors duration-300">
+        <a href="index.html" class="hover:opacity-80 transition-opacity">Home</a>
+        <a href="about.html" class="hover:opacity-80 transition-opacity">About</a>
+        <a href="skills.html" class="hover:opacity-80 transition-opacity">Techs & Tools</a>
+        <a href="projects.html" class="hover:opacity-80 transition-opacity text-hero-top font-bold">Work</a>
+        <a href="achievements.html" class="hover:opacity-80 transition-opacity">Achievements</a>
+        <a href="contact.html" class="hover:opacity-80 transition-opacity">Contact</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a href="contact.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-white text-jd-charcoal shadow-sm hover:bg-jd-yellow transition-all">
+          <span>Connect</span>
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+        </a>
+        <button id="menu-toggle" aria-label="Toggle Menu" class="p-1.5 rounded-lg text-jd-ink md:hidden bg-black/5 focus:outline-none">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu" class="fixed inset-0 bg-jd-charcoal/95 backdrop-blur-md z-50 flex flex-col justify-center items-center gap-6 text-base font-bold text-white transition-all duration-300 opacity-0 pointer-events-none md:hidden">
+    <a href="index.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">HOME</a>
+    <a href="about.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">ABOUT</a>
+    <a href="skills.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">TECHS & TOOLS</a>
+    <a href="projects.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors text-jd-yellow">SELECTED WORK</a>
+    <a href="achievements.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">ACHIEVEMENTS</a>
+    <a href="contact.html" onclick="closeMobileMenu();" class="mobile-item hover:text-jd-yellow transition-colors">CONTACT</a>
+  </div>
+
+  <main id="main-content">
+    <!-- PAGE 4 — PROJECTS -->
+    <section id="projects" class="window-page bg-jd-canvas border-b border-jd-charcoal/10 pt-16">
+      <div class="bento-shell w-full">
+        <div class="flex items-end justify-between mb-5 pb-2.5 border-b border-jd-charcoal/10">
+          <div>
+            <div class="text-[10px] font-mono font-bold tracking-widest text-hero-top uppercase mb-0.5">
+              INDEX 04 // CASE STUDIES
+            </div>
+            <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-jd-ink tracking-tight flex items-baseline">
+              <span>Selected Work</span>
+              <span class="text-hero-top font-mono text-xl font-bold ml-0.5">⌝</span>
+            </h2>
+          </div>
+          <div class="text-[10px] font-mono text-jd-charcoal/50 uppercase text-right">
+            TECHNICAL IMPLEMENTATIONS
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+          <div class="md:col-span-7 bg-white rounded-[26px] p-6 shadow-bento border border-jd-charcoal/5 flex flex-col justify-between group">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <span class="text-[9px] font-mono uppercase tracking-wider text-hero-top font-bold bg-hero-top/10 px-2.5 py-0.5 rounded-full">
+                  ANALYTICS & RELATIONAL DB
+                </span>
+                <a href="contact.html" class="w-7 h-7 rounded-full bg-jd-canvas flex items-center justify-center text-jd-charcoal group-hover:bg-jd-ink group-hover:text-white transition-colors">
+                  <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-jd-ink mb-1.5 tracking-tight">
+                Academic Intelligence Dashboard
+              </h3>
+              <p class="text-jd-charcoal/75 text-[12.5px] leading-relaxed mb-4">
+                End-to-end data pipeline analyzing student academic cohorts. Built with Python data aggregation scripts, MySQL relational database normalization, and Power BI interactive performance dashboards.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">Python</span>
+              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">MySQL</span>
+              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-jd-canvas text-jd-charcoal font-semibold">Power BI</span>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 bg-jd-charcoal text-white rounded-[26px] p-6 shadow-bento flex flex-col justify-between group">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <span class="text-[9px] font-mono uppercase tracking-wider text-jd-yellow font-bold bg-white/10 px-2.5 py-0.5 rounded-full">
+                  FRONTEND ENGINEERING
+                </span>
+                <a href="contact.html" class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-jd-yellow group-hover:text-jd-charcoal transition-colors">
+                  <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white mb-1.5 tracking-tight">
+                Modular Creative Interface
+              </h3>
+              <p class="text-white/70 text-[12.5px] leading-relaxed mb-4">
+                Modern frontend application built with semantic HTML5, adaptive CSS Grid layouts, and vanilla JavaScript DOM architecture with interactive micro-animations.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium">JavaScript</span>
+              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium">CSS3</span>
+              <span class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium">HTML5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById("mobile-menu");
+      if (drawer) {
+        drawer.classList.add("opacity-0", "pointer-events-none");
+        drawer.classList.remove("opacity-100", "pointer-events-auto");
+      }
+    }
+
+    const toggle = document.getElementById("menu-toggle");
+    const drawer = document.getElementById("mobile-menu");
+    if (toggle && drawer) {
+      let open = false;
+      toggle.addEventListener("click", () => {
+        open = !open;
+        if (open) {
+          drawer.classList.remove("opacity-0", "pointer-events-none");
+          drawer.classList.add("opacity-100", "pointer-events-auto");
+        } else {
+          drawer.classList.add("opacity-0", "pointer-events-none");
+          drawer.classList.remove("opacity-100", "pointer-events-auto");
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
